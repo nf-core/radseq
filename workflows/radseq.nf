@@ -35,10 +35,10 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK                   } from '../subworkflows/local/input_check'
-include { PROCESS_RAD                   } from '../subworkflows/local/fastp_processradtags'
-include { FASTQ_INDEX_ALIGN_BWA_MINIMAP } from '../subworkflows/local/fastq_index_align_bwa_minimap'
-include { CDHIT_RAINBOW as DENOVO       } from '../subworkflows/local/cdhit_rainbow'
+include { INPUT_CHECK                            } from '../subworkflows/local/input_check'
+include { PROCESS_RAD                            } from '../subworkflows/local/fastp_processradtags'
+include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/cdhit_rainbow'
+include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/fastq_index_align_bwa_minimap'
 //include { VARIANT_CALLING  } from '../subworkflows/'
 
 /*
@@ -50,9 +50,9 @@ include { CDHIT_RAINBOW as DENOVO       } from '../subworkflows/local/cdhit_rain
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+include { FASTQC                      } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
 ========================================================================================
@@ -111,7 +111,7 @@ workflow RADSEQ {
     //
     // SUBWORKFLOW: generate indexes, align input files, calculate statistics
     //
-    FASTQ_INDEX_ALIGN_BWA_MINIMAP (
+    ALIGN (
         PROCESS_RAD.out.trimmed_reads, ch_reference, params.bwamem_sort_view
         )
 

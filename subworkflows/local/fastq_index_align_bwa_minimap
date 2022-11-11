@@ -2,11 +2,11 @@
 // Align reads w/ BWA or MINIMAP
 //
 
-include { BWA_INDEX          } from '../../modules/nf-core/modules/bwa/index/main.nf'
-include { BWA_MEM            } from '../../modules/nf-core/modules/bwa/mem/main.nf'
-//include { MINIMAP_INDEX    } from '../../modules/nf-core/modules/minimap/index/main.nf'
-include { MINIMAP_ALIGN      } from '../../modules/nf-core/modules/minimap/align/main.nf'
-include { SAMTOOLS_INDEX     } from '../../modules/nf-core/modules/samtools/index/main.nf'
+include { BWA_INDEX          } from '../../modules/nf-core/bwa/index/main.nf'
+include { BWA_MEM            } from '../../modules/nf-core/bwa/mem/main.nf'
+//include { MINIMAP_INDEX    } from '../../modules/nf-core/minimap/index/main.nf'
+include { MINIMAP2_ALIGN      } from '../../modules/nf-core/minimap2/align/main.nf'
+include { SAMTOOLS_INDEX     } from '../../modules/nf-core/samtools/index/main.nf'
 include { BAM_STATS_SAMTOOLS } from '../nf-core/bam_stats_samtools/main.nf'
 
 
@@ -24,11 +24,11 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
 
         case 'bwa': 
 
-            BWA_INDEX (reference)
+            BWA_INDEX (fasta)
             ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
 
             // add specific arguments 
-            bam = BWA_MEM (reads, BWA_INDEX.out.index, sort_view)
+            bam = BWA_MEM (reads, BWA_INDEX.out.index, sort_view).bam
             ch_versions = ch_versions.mix(BWA_MEM.out.versions)
 
             break
@@ -38,7 +38,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             //MINIMAP_INDEX ()
             //ch_versions = ch_versions.mix(MINIMAP_INDEX.out.versions)
 
-            bam = MINIMAP_ALIGN (reads, reference, true, false, false).bam
+            bam = MINIMAP2_ALIGN (reads, fasta, true, false, false).bam
             ch_versions = ch_versions.mix(MINIMAP_ALIGN.out.versions)
             
             break
@@ -50,9 +50,13 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     bam_bai = bam.join(bai)
 
     BAM_STATS_SAMTOOLS (bam_bai, fasta)
+    ch_versions = ch_versions.mix(BAM_STATS_SAMTOOLS.out.versions)
 
     emit:
-    bam_bai
-
+    bam_bai  = bam_bai
+    stats    = BAM_STATS_SAMTOOLS.out.stats
+    flagstat = BAM_STATS_SAMTOOLS.out.flagstat
+    idxstats = BAM_STATS_SAMTOOLS.out.idxstats
+    
     versions = ch_versions
 }

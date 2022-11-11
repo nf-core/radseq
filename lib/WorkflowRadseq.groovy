@@ -13,9 +13,12 @@ class WorkflowRadseq {
         if (!params.method) {
             log.error "type of workflow to execute not specified with e.g. '--method denovo' or via a detectable config file."
             System.exit(1)
-        } else if (params.method == 'reference' && !params.genome || params.genome == null) {
+        }
+        if (params.method == 'reference') {
+            if (!params.genome || params.genome == null) {
             log.error "need to specify a genome file with e.g. '--genome fasta' or via a detectable config file."
             System.exit(1)
+            }
         }
         if (params.method == 'denovo'){
             if (!params.sequence_type) {

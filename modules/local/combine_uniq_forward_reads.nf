@@ -21,7 +21,6 @@ fi
 process COMBINE_UNIQUE_READS {
     tag "${meta.id}"
     label 'process_medium'
-    module 'seqtk/1.3:fastp/0.23.2'
 
     // get a can't find conda dir. ? Check you have anaconda3 installed
     conda (params.enable_conda ? 'seqtk bioconda::fastp=0.23.2' : null)
