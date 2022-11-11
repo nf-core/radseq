@@ -39,6 +39,7 @@ include { INPUT_CHECK                            } from '../subworkflows/local/i
 include { PROCESS_RAD                            } from '../subworkflows/local/fastp_processradtags'
 include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/cdhit_rainbow'
 include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/fastq_index_align_bwa_minimap'
+//include { BAM_FAI_FREEBAYES as VARIANT_CALL      } from '../subworkflows/local/bam_fai_freebayes'
 //include { VARIANT_CALLING  } from '../subworkflows/'
 
 /*
@@ -88,7 +89,7 @@ workflow RADSEQ {
         // assign ch_reference (input for aligning subworkflow) to the reference in the params
         case 'reference':
             // assign the channel to the fasta
-            ch_reference = params.genome
+            ch_reference = Channel.fromPath(params.genome)
             break
         
         case 'denovo':
@@ -107,7 +108,7 @@ workflow RADSEQ {
         default:
             exit 1, "unknown method: ${method} \n supported options: \n\treference\n\tdenovo"
     }
-     
+
     //
     // SUBWORKFLOW: generate indexes, align input files, calculate statistics
     //

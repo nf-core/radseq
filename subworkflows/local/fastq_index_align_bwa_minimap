@@ -28,7 +28,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
 
             // add specific arguments 
-            bam = BWA_MEM (reads, BWA_INDEX.out.index, sort_view).bam
+            bam = BWA_MEM (reads, BWA_INDEX.out.index.first(), sort_view).bam
             ch_versions = ch_versions.mix(BWA_MEM.out.versions)
 
             break
@@ -38,7 +38,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             //MINIMAP_INDEX ()
             //ch_versions = ch_versions.mix(MINIMAP_INDEX.out.versions)
 
-            bam = MINIMAP2_ALIGN (reads, fasta, true, false, false).bam
+            bam = MINIMAP2_ALIGN (reads, fasta.first(), true, false, false).bam
             ch_versions = ch_versions.mix(MINIMAP_ALIGN.out.versions)
             
             break
@@ -47,9 +47,15 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     bai = SAMTOOLS_INDEX (bam).bai
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
-    bam_bai = bam.join(bai)
+    bam_bai = bam
+        .join(bai, by: [0], remainder: true)
+        /*.map {
+            meta, bam, bai -> [meta, bam, bai]
 
-    BAM_STATS_SAMTOOLS (bam_bai, fasta)
+        }*/
+
+
+    BAM_STATS_SAMTOOLS (bam_bai, fasta.map{it[1]}.first())
     ch_versions = ch_versions.mix(BAM_STATS_SAMTOOLS.out.versions)
 
     emit:
