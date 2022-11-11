@@ -1,0 +1,71 @@
+include { PREPARE_FORWARD_READS        } from '../../modules/local/prepare_forward_reads.nf'
+include { COMBINE_UNIQUE_READS         } from '../../modules/local/combine_uniq_forward_reads.nf'
+include { SEQTK_SEQ                    } from '../../modules/nf-core/modules/seqtk/seq/main.nf'
+include { FASTP as DENOVO_FASTP        } from '../../modules/local/fastp.nf'
+include { CDHIT                        } from '../../modules/local/cdhit.nf' // cd-hit
+include { RAINBOW_DIV                  } from '../../modules/local/rainbow/div/rainbow_div.nf' // rainbow div
+include { RAINBOW_MERGE                } from '../../modules/local/rainbow/merge/rainbow_merge.nf' // rainbow merge
+include { RBMERGE2FASTA as WRITE_FASTA } from '../../modules/local/rbmerge2fasta.nf' // write fasta
+
+workflow CDHIT_RAINBOW {
+    take:
+    reads // [[:], [1.fq.gz, 2.fq.gz]]
+    sequence_type // value exe. 'PE' or 'ROP'
+
+    main:
+    ch_versions = Channel.empty()
+
+    // deduplicate forward reads
+    ch_uniq_forwardreads = PREPARE_FORWARD_READS (reads, sequence_type).indv_uniq_seqs
+    
+    
+    /* Collect individual uniq reads for COMBINING Into one Fasta 
+    * Combine reads and experiment with thresholds:
+    *       WithinIndividualRead_MinimumDepth
+    *       BetweenIndividualRead_MinimumDepth
+    * uniq sequences -> FASTA format using seqtk seq
+    * TRIM reads with large adapter content using fastp
+    * Cluster reads using cd-hit est
+    */
+    
+    ch_combine_unique_reads = ch_uniq_forwardreads
+        .collect {it[1]}
+        .map {
+            fasta -> 
+            def metaf = [:] // initialize groovy map
+            metaf.id = 'conglomerate' // set id
+            metaf.single_end = 'true'
+            
+            [metaf, fasta]
+        }
+
+
+    //TODO: add if else statement to create channel based on user inputs or set default values
+    minReadDepth_WithinIndividual = Channel.fromList ([2,3])
+    minReadDepth_BetweenIndividual = Channel.fromList ([2,3])
+    
+    // Combine forward reads across individuals
+    ch_uniq_full_fasta = COMBINE_UNIQUE_READS (ch_combine_unique_reads, sequence_type, minReadDepth_WithinIndividual, minReadDepth_BetweenIndividual).uniq_reads
+
+    // write dummy quality scores for fastp
+    ch_uniq_seqtk_fq = SEQTK_SEQ (ch_uniq_full_fasta).fastx
+
+    // trim adapter content: last true statement activates code block tailored to denovo pipeline
+    ch_trimadapters_uniq_fasta = DENOVO_FASTP (ch_uniq_seqtk_fq, ch_uniq_full_fasta, false, false, true).fasta
+
+    // cluster
+    ch_cluster = CDHIT (ch_trimadapters_uniq_fasta, DENOVO_FASTP.out.totaluniqseq, sequence_type).rb_cluster
+    
+    // div
+    ch_rbdiv = RAINBOW_DIV (ch_cluster).rbdiv
+    
+    // merge
+    ch_rbmerge = RAINBOW_MERGE (ch_rbdiv, sequence_type, true).rbmerge
+    
+    // output fasta
+    ch_fasta = WRITE_FASTA (ch_rbdiv, ch_rbmerge).fasta
+
+    emit:
+    fasta = ch_fasta
+ 
+}

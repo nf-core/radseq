@@ -1,0 +1,15 @@
+include {FASTP as FASTP} from '../../modules/local/fastp.nf'
+
+
+workflow PROCESS_RAD {
+    take:
+    reads
+
+    main:
+    ch_fastp = FASTP (reads, [[],[]], true, false, false).reads // [[meta],[reads]], save_trimmed_failed, save_merged
+
+    emit:
+    trimmed_reads = ch_fastp
+
+}
+

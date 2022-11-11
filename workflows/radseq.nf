@@ -11,7 +11,7 @@ WorkflowRadseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.input, params.multiqc_config ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -35,7 +35,11 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK                   } from '../subworkflows/local/input_check'
+include { PROCESS_RAD                   } from '../subworkflows/local/fastp_processradtags'
+include { FASTQ_INDEX_ALIGN_BWA_MINIMAP } from '../subworkflows/local/fastq_index_align_bwa_minimap'
+include { CDHIT_RAINBOW as DENOVO       } from '../subworkflows/local/cdhit_rainbow'
+//include { VARIANT_CALLING  } from '../subworkflows/'
 
 /*
 ========================================================================================
@@ -72,9 +76,49 @@ workflow RADSEQ {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
+    // SUBWORKFLOW: REMOVE LOW QUALITY READS, TRIM UMI's, DEMULTIPLEX POOLED FILES
+    //
+    PROCESS_RAD (
+        INPUT_CHECK.out.reads
+    )
+
+    // DO YOU HAVE A REFERENCE? If not we'll make a psuedoreference
+    switch ( params.method ) {
+        
+        // assign ch_reference (input for aligning subworkflow) to the reference in the params
+        case 'reference':
+            // assign the channel to the fasta
+            ch_reference = params.genome
+            break
+        
+        case 'denovo':
+            
+            /* SUBWORKFLOW: Cluster READS after applying unique read thresholds within and among samples.
+            *   option to provide a list of minimum depth thresholds. See nextflow.config for more details
+            *   assign outputed fasta to ch_reference
+            */   
+            ch_reference = DENOVO (
+                INPUT_CHECK.out.reads, params.sequence_type // sequence type exe.: 'SE', 'PE', ''
+            ).fasta
+            break
+        
+        // exit 1 (container shut down: application failure or invalid file) ends the process using signal 7
+        // if something other than the above cases is stated stop the workflow 
+        default:
+            exit 1, "unknown method: ${method} \n supported options: \n\treference\n\tdenovo"
+    }
+     
+    //
+    // SUBWORKFLOW: generate indexes, align input files, calculate statistics
+    //
+    FASTQ_INDEX_ALIGN_BWA_MINIMAP (
+        PROCESS_RAD.out.trimmed_reads, ch_reference, params.bwamem_sort_view
+        )
+
+    //
     // MODULE: Run FastQC
     //
-    FASTQC (
+    /*FASTQC (
         INPUT_CHECK.out.reads
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
@@ -100,7 +144,7 @@ workflow RADSEQ {
         ch_multiqc_files.collect()
     )
     multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
+    ch_versions    = ch_versions.mix(MULTIQC.out.versions)*/
 }
 
 /*

@@ -1,0 +1,58 @@
+//
+// Align reads w/ BWA or MINIMAP
+//
+
+include { BWA_INDEX          } from '../../modules/nf-core/modules/bwa/index/main.nf'
+include { BWA_MEM            } from '../../modules/nf-core/modules/bwa/mem/main.nf'
+//include { MINIMAP_INDEX    } from '../../modules/nf-core/modules/minimap/index/main.nf'
+include { MINIMAP_ALIGN      } from '../../modules/nf-core/modules/minimap/align/main.nf'
+include { SAMTOOLS_INDEX     } from '../../modules/nf-core/modules/samtools/index/main.nf'
+include { BAM_STATS_SAMTOOLS } from '../nf-core/bam_stats_samtools/main.nf'
+
+
+workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
+
+    take:
+    reads
+    fasta
+    sort_view
+
+    main:
+    ch_versions = Channel.empty()
+
+    switch ( params.aligner ) {
+
+        case 'bwa': 
+
+            BWA_INDEX (reference)
+            ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
+
+            // add specific arguments 
+            bam = BWA_MEM (reads, BWA_INDEX.out.index, sort_view)
+            ch_versions = ch_versions.mix(BWA_MEM.out.versions)
+
+            break
+        
+        case 'minimap2':
+
+            //MINIMAP_INDEX ()
+            //ch_versions = ch_versions.mix(MINIMAP_INDEX.out.versions)
+
+            bam = MINIMAP_ALIGN (reads, reference, true, false, false).bam
+            ch_versions = ch_versions.mix(MINIMAP_ALIGN.out.versions)
+            
+            break
+    }
+
+    bai = SAMTOOLS_INDEX (bam).bai
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+
+    bam_bai = bam.join(bai)
+
+    BAM_STATS_SAMTOOLS (bam_bai, fasta)
+
+    emit:
+    bam_bai
+
+    versions = ch_versions
+}

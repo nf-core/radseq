@@ -11,6 +11,36 @@
             },
             "multiqc": {
                 "git_sha": "20d8250d9f39ddb05dfb437603aaf99b5c0b2b41"
+            },
+            "nf-core/bwa/index": {
+                "git_sha": "9518fa4f65f3fb8cde24fde7d40333b39ec8fd65"
+            },
+            "nf-core/bwa/mem": {
+                "git_sha": "277f4d693a00471690b66598d167bbca78bbe232"
+            },
+            "nf-core/freebayes": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+            },
+            "nf-core/minimap2/align": {
+                "git_sha": "5850432aab24a1924389b660adfee3809d3e60a9"
+            },
+            "nf-core/minimap2/index": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+            },
+            "nf-core/samtools/flagstat": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+            },
+            "nf-core/samtools/idxstats": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+            },
+            "nf-core/samtools/index": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+            },
+            "nf-core/samtools/stats": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+            },
+            "nf-core/seqtk/seq": {
+                "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
             }
         }
     }

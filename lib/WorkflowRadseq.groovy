@@ -8,12 +8,27 @@ class WorkflowRadseq {
     // Check and validate parameters
     //
     public static void initialise(params, log) {
-        genomeExistsError(params, log)
+        //genomeExistsError(params, log) // function below
 
-        if (!params.fasta) {
-            log.error "Genome fasta file not specified with e.g. '--fasta genome.fa' or via a detectable config file."
+        if (!params.method) {
+            log.error "type of workflow to execute not specified with e.g. '--method denovo' or via a detectable config file."
+            System.exit(1)
+        } else if (params.method == 'reference' && !params.genome || params.genome == null) {
+            log.error "need to specify a genome file with e.g. '--genome fasta' or via a detectable config file."
             System.exit(1)
         }
+        if (params.method == 'denovo'){
+            if (!params.sequence_type) {
+                log.error "need to specify the sequencing method with e.g. '--sequence_type' or via a detectable config file"
+                System.exit(1)
+            }
+            if (!params.minReadDepth_WithinIndividual || params.minReadDepth_withinIndividual == null) {
+                log.warn("using default range of values for minReadDepth_withinIndividual")
+            }
+            if (params.method == 'denovo' && !params.minReadDepth_BetweenIndividual || params.minReadDepth_withinIndividual == null) {
+                log.warn("using default range of values for minReadDepth_BetweenIndividual")
+            }   
+        }  
     }
 
     //
@@ -46,7 +61,7 @@ class WorkflowRadseq {
     //
     // Exit pipeline if incorrect --genome key provided
     //
-    private static void genomeExistsError(params, log) {
+    /*private static void genomeExistsError(params, log) {
         if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
             log.error "=============================================================================\n" +
                 "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" +
@@ -55,5 +70,5 @@ class WorkflowRadseq {
                 "==================================================================================="
             System.exit(1)
         }
-    }
+    }*/
 }
