@@ -11,6 +11,7 @@ process BWA_MEM {
     tuple val(meta), path(reads)
     tuple val(meta2), path(index)
     val   sort_bam
+    val   type
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
@@ -24,20 +25,43 @@ process BWA_MEM {
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def samtools_command = sort_bam ? 'sort' : 'view'
-    """
-    INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
+    if (type == 'PE') {
+        """
+        INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
-    bwa mem \\
-        $args \\
-        -t $task.cpus \\
-        \$INDEX \\
-        $reads \\
-        | samtools $samtools_command $args2 --threads $task.cpus -o ${prefix}.bam -
+        bwa mem \\
+            $args \\
+            -L 20,5 -a -M -T 10 \\
+            -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
+            -t $task.cpus \\
+            \$INDEX \\
+            $reads \\
+            | samtools $samtools_command $args2 --threads $task.cpus -o ${prefix}.bam -
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        bwa: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-    END_VERSIONS
-    """
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            bwa: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+            samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+        END_VERSIONS
+        """
+    } else {
+        """
+        INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
+
+        bwa mem \\
+            $args \\
+            -L 20,5 -a -M -T 10 \\
+            -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
+            -t $task.cpus \\
+            \$INDEX \\
+            $reads \\
+            | samtools $samtools_command $args2 --threads $task.cpus -o ${prefix}.bam -
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            bwa: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
+            samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+        END_VERSIONS
+        """
+    }
 }

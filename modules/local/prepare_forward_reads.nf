@@ -65,15 +65,15 @@ process PREPARE_FORWARD_READS {
         awk 'BEGIN{P=1}{if(P==1||P==2){gsub(/^[@]/,">");print}; if(P==4)P=0; P++}' | \\
         awk '!/>/' > ${prefix}.reverse
         
-        paste ${prefix}.forward ${prefix}.reverse | $sort -k1 -S 200M > ${prefix}.fr
+        paste ${prefix}.forward ${prefix}.reverse | sort -k1 -S 200M > ${prefix}.fr
 		cut -f1 ${prefix}.fr | uniq -c > ${prefix}.f.uniq && cut -f2 ${prefix}.fr > ${prefix}.r
 		awk '{for(i=0;i<\$1;i++)print}' ${prefix}.f.uniq > ${prefix}.f.uniq.e
 		
         paste -d '-' ${prefix}.f.uniq.e ${prefix}.r | \\
         awk '!/NNN/'| \\
         sed -e 's/-/NNNNNNNNNN/' | \\
-        sed -e 's/^[ \t]*//' | \\
-        sed -e 's/\s/\t/g' > ${prefix}.uniq.seqs
+        sed -e 's/^[ \\t]*//' | \\
+        sed -e 's/\\s/\\t/g' > ${prefix}.uniq.seqs
 		
         rm ${prefix}.f.uniq.e ${prefix}.f.uniq ${prefix}.r ${prefix}.fr
         """
@@ -83,7 +83,13 @@ process PREPARE_FORWARD_READS {
         gunzip -c ${forward_reads} | \\
         awk 'BEGIN{P=1}{if(P==1||P==2){gsub(/^[@]/,">");print}; if(P==4)P=0; P++}' | \\
         awk '!/>/' | \\
-        perl -e 'while (<>) {chomp; \$z{\$_}++;} while((\$k,\$v) = each(%z)) {print "\$v\t\$k\n";}' > ${prefix}.uniq.seqs
+        perl -e 'while (<>) {chomp; \$z{\$_}++;} while((\$k,\$v) = each(%z)) {print "\$v\\t\$k\\n";}' > ${prefix}.uniq.seqs
+        """
+    } else if (type == 'OL')  {
+        """
+        awk 'BEGIN{P=1}{if(P==1||P==2){gsub(/^[@]/,">");print}; if(P==4)P=0; P++}' ${assembled_fastq} | \\
+        awk '!/>/' | \\
+        perl -e 'while (<>) {chomp; \$z{\$_}++;} while((\$k,\$v) = each(%z)) {print "\$v\\t\$k\\n";}' > ${prefix}.uniq.seqs
         """
     } else {
         error "invalid sequence type specified or is not supported: ${type}"

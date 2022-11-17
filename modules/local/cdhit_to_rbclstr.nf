@@ -35,11 +35,11 @@ process CDHIT_TO_RBCLSTR {
         """
     } else {
         """
-        awk '{if (\$1 ~ /Cl/) clus = clus + 1; else  print \$3 "\\t" clus}' ${prefix}.clstr | \\
+        awk '{if (\$1 ~ /Cl/) clus = clus + 1; else  print \$3 "\\t" clus}' ${clstr} | \\
         sed -e 's/[>dDocent_Contig_,...]//g' | \\
-        sort -g -k1 -S 2G > sort.contig.cluster.ids
+        sort -g -k1 -S 2G > ${prefix}.sort.contig.cluster.ids
 		
-        paste sort.contig.cluster.ids <(awk '!/>/' uniq.F.fasta) > ${prefix}.contig.cluster.Funiq
+        paste sort.contig.cluster.ids <(awk '!/>/' ${totaluniqseq}) > ${prefix}.contig.cluster.Funiq
 		
         sed -e 's/NNNNNNNNNN/	/g' totaluniqseq | \\
         sort -k1 -S 2G | \\
@@ -51,6 +51,5 @@ process CDHIT_TO_RBCLSTR {
         sort -k2,2 -g ${prefix}.contig.cluster.totaluniqseq -S 2G | \\
         sed -e 's/NNNNNNNNNN/	/g' > ${prefix}.rcluster
         """
-
     }
 }

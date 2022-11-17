@@ -9,7 +9,7 @@ process RAINBOW_MERGE {
 
     input:
     tuple val (meta), path (rbdiv)
-    val type
+    val (type)
     val (save_assembly)
 
     output:
@@ -25,34 +25,15 @@ process RAINBOW_MERGE {
     def output_assembly = save_assembly ? '-a' : ''
     def args = task.ext.args ?: '-r 2 -N10000 -R10000 -l 20 -f 0.75'
     // change default arguments based on data
-    if (type == 'HYB') {
-        """
-        rainbow merge -i ${rbdiv} -o ${prefix}_rbmerge.out \\
-        ${args} \\
-        ${output_assembly} \\
-        2> ${prefix}_rbmerge.log
-        
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            rainbow: \$(rainbow | head -n 1 | cut -d ' ' -f 2)
-        END_VERSIONS
-        """
-    } else {
-        """
-        #CLUSTER=(tail -1 ${rbdiv} | cut -f5)
-        #CLUSTER1="\$((\$CLUSTER / 100 + 1))"
-        #CLUSTER2="\$((\$CLUSTER1 + 100))"
+    """
+    rainbow merge -i ${rbdiv} -o ${prefix}_rbmerge.out \
+    ${args} \
+    ${output_assembly} \
+    2> ${prefix}_rbmerge.log
 
-        rainbow merge -i ${rbdiv} -o ${prefix}_rbmerge.out \
-        ${args} \
-        ${output_assembly} \
-        2> ${prefix}_rbmerge.log
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            rainbow: \$(rainbow | head -n 1 | cut -d ' ' -f 2)
-        END_VERSIONS
-        """
-
-    }
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        rainbow: \$(rainbow | head -n 1 | cut -d ' ' -f 2)
+    END_VERSIONS
+    """
 }

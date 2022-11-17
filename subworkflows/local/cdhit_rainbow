@@ -51,7 +51,7 @@ workflow CDHIT_RAINBOW {
     // write dummy quality scores for fastp
     ch_uniq_seqtk_fq = SEQTK_SEQ (ch_uniq_full_fasta).fastx
 
-    // trim adapter content: last true statement activates code block tailored to denovo pipeline
+    // trim adapter content: last true statement activates code block tailored to denovo pipeline since this was based off a nf-core module
     ch_trimadapters_uniq_fasta = DENOVO_FASTP (ch_uniq_seqtk_fq, ch_uniq_full_fasta, false, false, true).fasta
 
     // cluster

@@ -1,11 +1,19 @@
-include {FASTP as FASTP} from '../../modules/local/fastp.nf'
-
+include { FASTP       } from '../../modules/local/fastp.nf'
+include { READ_LENGTH } from '../../modules/local/read_length.nf'
 
 workflow PROCESS_RAD {
     take:
     reads
 
     main:
+    reads
+        .collect { 
+            meta, reads ->
+            col = reads.collect()
+            return col
+        }.view()
+    //ch_length = READ_LENGTH (reads.collect{it[1]})
+    
     ch_fastp = FASTP (reads, [[],[]], true, false, false).reads // [[meta],[reads]], save_trimmed_failed, save_merged
 
     emit:

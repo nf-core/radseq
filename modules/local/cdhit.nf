@@ -1,5 +1,5 @@
 process CDHIT {
-    tag "meta.id"
+    tag "$meta.id"
     label 'process_high'
 
     //publishDir '', contentType: 'test/html'

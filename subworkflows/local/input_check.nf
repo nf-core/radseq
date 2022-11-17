@@ -25,6 +25,7 @@ def create_fastq_channels(LinkedHashMap row) {
     def meta = [:]
     meta.id           = row.sample
     meta.single_end   = row.single_end.toBoolean()
+    meta.umi_barcodes = row.umi_barcodes.toBoolean()
 
     def array = []
     if (!file(row.fastq_1).exists()) {

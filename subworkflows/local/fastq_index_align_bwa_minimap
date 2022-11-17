@@ -5,7 +5,8 @@
 include { BWA_INDEX          } from '../../modules/nf-core/bwa/index/main.nf'
 include { BWA_MEM            } from '../../modules/nf-core/bwa/mem/main.nf'
 //include { MINIMAP_INDEX    } from '../../modules/nf-core/minimap/index/main.nf'
-include { MINIMAP2_ALIGN      } from '../../modules/nf-core/minimap2/align/main.nf'
+include { MINIMAP2_ALIGN     } from '../../modules/nf-core/minimap2/align/main.nf'
+include { UMITOOLS_DEDUP     } from '../../modules/nf-core/umitools/dedup/main.nf'
 include { SAMTOOLS_INDEX     } from '../../modules/nf-core/samtools/index/main.nf'
 include { BAM_STATS_SAMTOOLS } from '../nf-core/bam_stats_samtools/main.nf'
 
@@ -16,6 +17,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     reads
     fasta
     sort_view
+    sequence_type
 
     main:
     ch_versions = Channel.empty()
@@ -28,10 +30,9 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
 
             // add specific arguments 
-            bam = BWA_MEM (reads, BWA_INDEX.out.index.first(), sort_view).bam
+            bam = BWA_MEM (reads, BWA_INDEX.out.index.first(), sort_view, sequence_type).bam
             ch_versions = ch_versions.mix(BWA_MEM.out.versions)
-
-            break
+                break
         
         case 'minimap2':
 
@@ -40,21 +41,38 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
 
             bam = MINIMAP2_ALIGN (reads, fasta.first(), true, false, false).bam
             ch_versions = ch_versions.mix(MINIMAP_ALIGN.out.versions)
-            
-            break
+                break
+
+        case 'bwa2':
+
+            BWA2_INDEX (fasta)
+            ch_versions = ch_versions.mix(BWA2_INDEX.out.versions)
+
+            // add specific arguments 
+            bam = BWA2_MEM (reads, BWA2_INDEX.out.index.first(), sort_view, type).bam
+            ch_versions = ch_versions.mix(BWA2_MEM.out.versions)
+                break
     }
 
-    bai = SAMTOOLS_INDEX (bam).bai
+    // split up into 2 channels to decide input for deduplication
+    bam_bai = bam
+        .branch { meta, bam ->
+            umi: meta.umi_barcodes == true
+            no_umi: meta.umi_barcodes == false
+        }
+
+    // query only reads that satisfied the above condition
+    umi_bam = UMITOOLS_DEDUP (bam_bai.umi, false)
+
+    bai = SAMTOOLS_INDEX (bam_bai.no_umi.mix(umi_bam)).bai
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
-    bam_bai = bam
-        .join(bai, by: [0], remainder: true)
-        /*.map {
-            meta, bam, bai -> [meta, bam, bai]
+    // add deduplicated umi reads to no_umi channnel and join the index's
+    bam_bai = bam_bai.no_umi
+        .mix(umi_bam)
+        .join(bai)
 
-        }*/
-
-
+    // get statistics
     BAM_STATS_SAMTOOLS (bam_bai, fasta.map{it[1]}.first())
     ch_versions = ch_versions.mix(BAM_STATS_SAMTOOLS.out.versions)
 
