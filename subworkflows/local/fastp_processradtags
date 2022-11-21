@@ -1,23 +1,40 @@
-include { FASTP       } from '../../modules/local/fastp.nf'
-include { READ_LENGTH } from '../../modules/local/read_length.nf'
+include { FASTP             } from '../../modules/local/fastp.nf'
+//include { CALC_READ_LENGTHS } from './calc_read_lengths'
 
 workflow PROCESS_RAD {
     take:
     reads
 
     main:
+    ch_versions = Channel.empty()
+
+    //CALC_READ_LENGTHS (reads)
+    //ch_versions = ch_versions.mix(CALC_READ_LENGTHS.out.versions)
     reads
-        .collect { 
-            meta, reads ->
-            col = reads.collect()
-            return col
-        }.view()
-    //ch_length = READ_LENGTH (reads.collect{it[1]})
+        .map {
+            meta, reads -> 
+            if (meta.single_end) {
+                return [meta.id,reads[0]]
+            } else {
+                return [meta.id,reads[1]]
+            }
+        }
+        .splitFastq(record:true,limit:1)
+        .map { meta, splitfastq -> 
+            return [splitfastq.readString]
+        }
+        .set {read_lengths}
     
     ch_fastp = FASTP (reads, [[],[]], true, false, false).reads // [[meta],[reads]], save_trimmed_failed, save_merged
+    ch_versions = ch_versions.mix(FASTP.out.versions)
 
     emit:
     trimmed_reads = ch_fastp
+    //bwa_mem_denovo_param = CALC_READ_LENGTHS.out.bwa_mem_denovo_param
+    //split_highcov_intervals = CALC_READ_LENGTHS.out.split_highcov_intervals
+    read_lengths
+
+    versions = ch_versions
 
 }
 

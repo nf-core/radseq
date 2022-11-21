@@ -11,7 +11,8 @@ process BWA_MEM {
     tuple val(meta), path(reads)
     tuple val(meta2), path(index)
     val   sort_bam
-    val   type
+    val   sequence_type
+    val  lengths
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
@@ -25,12 +26,20 @@ process BWA_MEM {
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def samtools_command = sort_bam ? 'sort' : 'view'
-    if (type == 'PE') {
+    if (sequence_type == 'PE' && params.method == 'denovo') {
         """
         INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
+        
+        echo "${lengths.join("\n")}" > lengths.txt
+        MLEN=\$(awk '{ print length() | "sort -rn" }' lengths.txt | head -1)
+        INSERT=\$(( \$MLEN * 2 ))
+        INSERTH=\$(( \$INSERT + 100 ))
+        INSERTL=\$(( \$INSERT - 100 ))
+        SD=\$(( \$INSERT / 5 ))
 
         bwa mem \\
             $args \\
+            -I \$INSERT,\$SD,\$INSERTH,\$INSERTL \\
             -L 20,5 -a -M -T 10 \\
             -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
             -t $task.cpus \\

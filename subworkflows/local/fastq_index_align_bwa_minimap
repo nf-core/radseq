@@ -18,6 +18,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     fasta
     sort_view
     sequence_type
+    read_lengths
 
     main:
     ch_versions = Channel.empty()
@@ -30,7 +31,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
 
             // add specific arguments 
-            bam = BWA_MEM (reads, BWA_INDEX.out.index.first(), sort_view, sequence_type).bam
+            bam = BWA_MEM (reads, BWA_INDEX.out.index.first(), sort_view, sequence_type, read_lengths.collect()).bam
             ch_versions = ch_versions.mix(BWA_MEM.out.versions)
                 break
         

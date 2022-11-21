@@ -113,7 +113,7 @@ workflow RADSEQ {
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
     //      if denovo and paired then provide length_stats to bwa mem
     ALIGN (
-        PROCESS_RAD.out.trimmed_reads, ch_reference, params.bwamem_sort_view, params.sequence_type
+        PROCESS_RAD.out.trimmed_reads, ch_reference, params.bwamem_sort_view, params.sequence_type, PROCESS_RAD.out.read_lengths
         )
 
     //
