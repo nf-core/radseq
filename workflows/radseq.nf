@@ -39,8 +39,8 @@ include { INPUT_CHECK                            } from '../subworkflows/local/i
 include { PROCESS_RAD                            } from '../subworkflows/local/fastp_processradtags'
 include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/cdhit_rainbow'
 include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/fastq_index_align_bwa_minimap'
-//include { BAM_FAI_FREEBAYES as VARIANT_CALL      } from '../subworkflows/local/bam_fai_freebayes'
-//include { VARIANT_CALLING  } from '../subworkflows/'
+include { BAM_MERGE_INDEX_SAMTOOLS               } from '../subworkflows/nf-core/bam_merge_index_samtools/main.nf'
+include { BAM_INTERVALS_BEDTOOLS                 } from '../subworkflows/local/bam_intervals_bedtools'
 
 /*
 ========================================================================================
@@ -54,6 +54,7 @@ include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/f
 include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { SAMTOOLS_FAIDX              } from '../modules/nf-core/samtools/faidx/main.nf'
 
 /*
 ========================================================================================
@@ -101,6 +102,7 @@ workflow RADSEQ {
             ch_reference = DENOVO (
                 INPUT_CHECK.out.reads, params.sequence_type // sequence type exe.: 'SE', 'PE', ''
             ).fasta
+            //TODO: add channel versions 
             break
         
         // exit 1 (container shut down: application failure or invalid file) ends the process using signal 7
@@ -109,13 +111,25 @@ workflow RADSEQ {
             exit 1, "unknown method: ${method} \n supported options: \n\treference\n\tdenovo"
     }
 
+    // nf-core module to index the reference for Freebayes
+    ch_fai = SAMTOOLS_FAIDX (ch_reference).fai
+
     //
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
     //      if denovo and paired then provide length_stats to bwa mem
-    ALIGN (
+    ch_bam_bai = ALIGN (
         PROCESS_RAD.out.trimmed_reads, ch_reference, params.bwamem_sort_view, params.sequence_type, PROCESS_RAD.out.read_lengths
-        )
+        ).bam_bai
 
+    //
+    // SUBWORKFLOW: 
+    //
+    //merge_bam_bai = BAM_MERGE_INDEX_SAMTOOLS (bam_bai.map{meta, bam, bai -> [meta, bam]}, ch_reference, ch_fai).bam_bai
+
+    BAM_INTERVALS_BEDTOOLS (
+        ch_bam_bai.map{meta, bam, bai -> [meta, bam]}, 
+        ch_fai
+        )
     //
     // MODULE: Run FastQC
     //

@@ -1,0 +1,17 @@
+include { FREEBAYES } from '../../../modules/nf-core/freebayes/main.nf'
+
+workflow VARIANT_CALLING {
+
+    take:
+    bam_bai
+
+    main:
+    ch_versions = Channel.empty()
+    
+    FREEBAYES ()
+    ch_versions = ch_versions.mix(FREEBAYES.out.versions)
+
+    emit:
+
+
+}

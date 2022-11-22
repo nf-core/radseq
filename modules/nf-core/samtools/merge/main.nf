@@ -18,7 +18,6 @@ process SAMTOOLS_MERGE {
     tuple val(meta), path("*.csi")         , optional:true, emit: csi
     path  "versions.yml"                                  , emit: versions
 
-
     when:
     task.ext.when == null || task.ext.when
 
