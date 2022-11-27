@@ -30,15 +30,15 @@ workflow CDHIT_RAINBOW {
     */
     
     ch_combine_unique_reads = ch_uniq_forwardreads
-        .collect {it[1]}
         .map {
-            fasta -> 
+            meta, fasta -> 
             def metaf = [:] // initialize groovy map
-            metaf.id = 'conglomerate' // set id
+            metaf.id =  meta.id.split(/\d+/)[0] // set id
             metaf.single_end = 'true'
             
             [metaf, fasta]
         }
+        .groupTuple()
 
 
     //TODO: Determine what the default values should be: best to make it dynamic a.k.a based on input and expectations

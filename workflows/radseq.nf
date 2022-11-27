@@ -112,7 +112,7 @@ workflow RADSEQ {
     }
 
     // nf-core module to index the reference for Freebayes
-    ch_fai = SAMTOOLS_FAIDX (ch_reference).fai
+    ch_faidx = SAMTOOLS_FAIDX (ch_reference).fai
 
     //
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
@@ -128,8 +128,14 @@ workflow RADSEQ {
 
     BAM_INTERVALS_BEDTOOLS (
         ch_bam_bai.map{meta, bam, bai -> [meta, bam]}, 
-        ch_fai
+        ch_faidx,
+        PROCESS_RAD.out.read_lengths,
+        params.splitByReadCoverage
         )
+
+
+
+    
     //
     // MODULE: Run FastQC
     //

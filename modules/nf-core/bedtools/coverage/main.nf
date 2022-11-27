@@ -1,6 +1,6 @@
-process BEDTOOLS_MERGE_BED {
+process BEDTOOLS_COVERAGE {
     tag "$meta.id"
-    label 'process_single'
+    label 'process_medium'
 
     conda (params.enable_conda ? "bioconda::bedtools=2.30.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -8,12 +8,12 @@ process BEDTOOLS_MERGE_BED {
         'quay.io/biocontainers/bedtools:2.30.0--hc088bd4_0' }"
 
     input:
-    tuple val(meta), path(bed)
-    tuple val(meta2), path(faidx)
+    tuple val(meta), path(input_A), path(input_B)
+    path genome_file
 
     output:
-    tuple val(meta), path('*.bed'), emit: bed
-    path  "versions.yml"          , emit: versions
+    tuple val(meta), path("*.cov"), emit: cov
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,17 +21,19 @@ process BEDTOOLS_MERGE_BED {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if ("$bed" == "${prefix}.bed") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
+    def reference = genome_file ? "-g ${genome_file} -sorted" : ""
     """
-    cat ${bed} | bedtools sort -i - | \\
     bedtools \\
-        merge \\
-        -i - \\
-        $args | \\
-    bedtools sort -i - -faidx ${faidx} > ${prefix}.bed
+        coverage \\
+        $args \\
+        $reference \\
+        -counts \\
+        -a $input_A \\
+        -b $input_B \\
+        > ${prefix}.cov
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")
+        bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools v//' ))
     END_VERSIONS
     """
 }

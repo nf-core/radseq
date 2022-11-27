@@ -1,4 +1,4 @@
-process BEDTOOLS_MERGE_BED {
+process BEDTOOLS_INTERSECT {
     tag "$meta.id"
     label 'process_single'
 
@@ -8,12 +8,12 @@ process BEDTOOLS_MERGE_BED {
         'quay.io/biocontainers/bedtools:2.30.0--hc088bd4_0' }"
 
     input:
-    tuple val(meta), path(bed)
-    tuple val(meta2), path(faidx)
+    tuple val(meta), path(intervals1), path(intervals2)
+    val extension
 
     output:
-    tuple val(meta), path('*.bed'), emit: bed
-    path  "versions.yml"          , emit: versions
+    tuple val(meta), path("*.${extension}"), emit: intersect
+    path  "versions.yml"                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,14 +21,16 @@ process BEDTOOLS_MERGE_BED {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if ("$bed" == "${prefix}.bed") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
+    if ("$intervals1" == "${prefix}.${extension}" ||
+        "$intervals2" == "${prefix}.${extension}")
+        error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
-    cat ${bed} | bedtools sort -i - | \\
     bedtools \\
-        merge \\
-        -i - \\
-        $args | \\
-    bedtools sort -i - -faidx ${faidx} > ${prefix}.bed
+        intersect \\
+        -a $intervals1 \\
+        -b $intervals2 \\
+        $args \\
+        > ${prefix}.${extension}
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")
