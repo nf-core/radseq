@@ -55,7 +55,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
     //TODO: add channle versions
 
     emit:
-    ch_intervals
+    intervals = ch_intervals
 
 
     versions = ch_versions

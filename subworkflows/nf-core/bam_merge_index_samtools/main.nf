@@ -16,7 +16,13 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
     main:
     ch_versions = Channel.empty()
 
-    MERGE_BAM(bam, fasta, fai)
+    ch_bam_to_merge = bam.map {
+        meta, bed -> 
+            [['id':meta.id.split(/\d+/)[0]], bed ]
+        }
+        .groupTuple()
+
+    MERGE_BAM(ch_bam_to_merge, fasta, fai)
     
     INDEX_MERGE_BAM(MERGE_BAM.out.bam)
 

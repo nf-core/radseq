@@ -2,13 +2,14 @@
 // Align reads w/ BWA or MINIMAP
 //
 
-include { BWA_INDEX          } from '../../modules/nf-core/bwa/index/main.nf'
-include { BWA_MEM            } from '../../modules/nf-core/bwa/mem/main.nf'
-//include { MINIMAP_INDEX    } from '../../modules/nf-core/minimap/index/main.nf'
-include { MINIMAP2_ALIGN     } from '../../modules/nf-core/minimap2/align/main.nf'
-include { UMITOOLS_DEDUP     } from '../../modules/nf-core/umitools/dedup/main.nf'
-include { SAMTOOLS_INDEX     } from '../../modules/nf-core/samtools/index/main.nf'
-include { BAM_STATS_SAMTOOLS } from '../nf-core/bam_stats_samtools/main.nf'
+include { BWA_INDEX                } from '../../modules/nf-core/bwa/index/main.nf'
+include { BWA_MEM                  } from '../../modules/nf-core/bwa/mem/main.nf'
+//include { MINIMAP_INDEX          } from '../../modules/nf-core/minimap/index/main.nf'
+include { MINIMAP2_ALIGN           } from '../../modules/nf-core/minimap2/align/main.nf'
+include { UMITOOLS_DEDUP           } from '../../modules/nf-core/umitools/dedup/main.nf'
+include { SAMTOOLS_INDEX           } from '../../modules/nf-core/samtools/index/main.nf'
+include { BAM_STATS_SAMTOOLS       } from '../nf-core/bam_stats_samtools/main.nf'
+include { BAM_MERGE_INDEX_SAMTOOLS } from '../nf-core/bam_merge_index_samtools/main.nf'
 
 
 workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
@@ -16,6 +17,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     take:
     reads
     fasta
+    fai
     sort_view
     sequence_type
     read_lengths
@@ -77,8 +79,12 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     BAM_STATS_SAMTOOLS (bam_bai, fasta.map{it[1]}.first())
     ch_versions = ch_versions.mix(BAM_STATS_SAMTOOLS.out.versions)
 
+    mbam_bai = BAM_MERGE_INDEX_SAMTOOLS (bam_bai.map{meta,bam,bai -> [meta, bam]}, fasta.map{it[1]}.first(), fai.map{it[1]}.first()).bam_bai
+    ch_versions = ch_versions.mix(BAM_MERGE_INDEX_SAMTOOLS.out.versions)
+
     emit:
     bam_bai
+    mbam_bai
     stats    = BAM_STATS_SAMTOOLS.out.stats
     flagstat = BAM_STATS_SAMTOOLS.out.flagstat
     idxstats = BAM_STATS_SAMTOOLS.out.idxstats

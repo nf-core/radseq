@@ -1,17 +1,38 @@
-include { FREEBAYES } from '../../../modules/nf-core/freebayes/main.nf'
+include { FREEBAYES          } from '../../modules/nf-core/freebayes/main.nf'
+include { BCFTOOLS_SORT      } from '../../modules/nf-core/bcftools/sort/main.nf'
+include { TABIX_TABIX        } from '../../modules/nf-core/tabix/tabix/main.nf'
+include { BCFTOOLS_CONCAT    } from '../../modules/nf-core/bcftools/concat/main.nf'
 
-workflow VARIANT_CALLING {
+
+workflow BAM_VARIANT_CALLING_FREEBAYES {
 
     take:
-    bam_bai
+    bam_bai_bed // [[meta], bam, bai, bed]
+    intervals // true or false
+    fasta // reference [fasta]
+    fai // reference index [faidx]
 
     main:
     ch_versions = Channel.empty()
     
-    FREEBAYES ()
+    bam_bai_bed.view()
+
+    FREEBAYES (bam_bai_bed, intervals, fasta.first(), fai.first(), [], [], [])
     ch_versions = ch_versions.mix(FREEBAYES.out.versions)
+
+    FREEBAYES.out.vcf.view()
+
+    ch_vcfsort = BCFTOOLS_SORT (FREEBAYES.out.vcf).vcf
+    ch_versions = ch_versions.mix(BCFTOOLS_SORT.out.versions)
+
+    ch_tbi = TABIX_TABIX (BCFTOOLS_SORT.out.vcf).tbi
+    ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
+    
+    BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).groupTuple(by:0))
+    ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     emit:
 
 
+    versions = ch_versions
 }

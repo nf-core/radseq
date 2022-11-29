@@ -41,6 +41,7 @@ include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/c
 include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/fastq_index_align_bwa_minimap'
 include { BAM_MERGE_INDEX_SAMTOOLS               } from '../subworkflows/nf-core/bam_merge_index_samtools/main.nf'
 include { BAM_INTERVALS_BEDTOOLS                 } from '../subworkflows/local/bam_intervals_bedtools'
+include { BAM_VARIANT_CALLING_FREEBAYES          } from '../subworkflows/local/bam_variant_calling_freebayes'
 
 /*
 ========================================================================================
@@ -118,7 +119,12 @@ workflow RADSEQ {
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
     //      if denovo and paired then provide length_stats to bwa mem
     ch_bam_bai = ALIGN (
-        PROCESS_RAD.out.trimmed_reads, ch_reference, params.bwamem_sort_view, params.sequence_type, PROCESS_RAD.out.read_lengths
+        PROCESS_RAD.out.trimmed_reads, 
+        ch_reference, 
+        ch_faidx,
+        params.bwamem_sort_view, 
+        params.sequence_type, 
+        PROCESS_RAD.out.read_lengths
         ).bam_bai
 
     //
@@ -126,14 +132,22 @@ workflow RADSEQ {
     //
     //merge_bam_bai = BAM_MERGE_INDEX_SAMTOOLS (bam_bai.map{meta, bam, bai -> [meta, bam]}, ch_reference, ch_fai).bam_bai
 
-    BAM_INTERVALS_BEDTOOLS (
+    ch_intervals = BAM_INTERVALS_BEDTOOLS (
         ch_bam_bai.map{meta, bam, bai -> [meta, bam]}, 
         ch_faidx,
         PROCESS_RAD.out.read_lengths,
         params.splitByReadCoverage
-        )
+        ).intervals
 
+    ch_bam_bai_bed = ALIGN.out.mbam_bai
+        .combine(ch_intervals.map{it[1]})
 
+    BAM_VARIANT_CALLING_FREEBAYES (
+        ch_bam_bai_bed,
+        true,
+        ch_reference.map{it[1]},
+        ch_faidx.map{it[1]}
+    )
 
     
     //
