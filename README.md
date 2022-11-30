@@ -17,7 +17,7 @@
 ## Introduction
 
 <!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
-**nf-core/radseq** is a bioinformatics best-practice analysis pipeline for dDocent workflow.
+**nf-core/radseq** is a bioinformatics best-practice analysis pipeline based off of the dDocent workflow.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
@@ -29,7 +29,30 @@ On release, automated continuous integration tests run the pipeline on a full-si
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+2. Adapter and quality trimming ([`fastp`](https://github.com/OpenGene/fastp))
+3. Choice of constructing psuedoreference (i) or using existing reference (ii)
+    
+    i. [`cdhit`](https://sites.google.com/view/cd-hit?pli=1) -> [`rainbow`](https://github.com/ChongLab/rainbow)
+    
+    ii. **No Preprossesing**
+4. Choice of alignment software 
+    
+    i. [`BWA`](https://bio-bwa.sourceforge.net/bwa.shtml)
+
+    ii. [`BWAMEM2`](https://github.com/bwa-mem2/bwa-mem2)
+
+    iii. [`MINIMAP2`](https://github.com/lh3/minimap2)
+
+5. UMI-based deduplicated ([`UMI-tools`](https://github.com/CGATOxford/UMI-tools))
+
+5. Index, merge and index alignments ([`SAMtools`](https://github.com/samtools/samtools))
+
+6. Construct intervals for freebayes ([`BEDtools`](https://bedtools.readthedocs.io/en/latest/))
+
+7. Variant calling ([`FREEBAYES`](https://github.com/freebayes/freebayes), [`BCFtools`](https://github.com/samtools/bcftools))
+
+5. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
 
 ## Quick Start
 
@@ -55,7 +78,7 @@ On release, automated continuous integration tests run the pipeline on a full-si
     <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
     ```console
-    nextflow run nf-core/radseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> --input samplesheet.csv --genome GRCh37
+    nextflow run nf-core/radseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> --input samplesheet.csv
     ```
 
 ## Documentation

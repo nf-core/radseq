@@ -91,7 +91,7 @@ workflow RADSEQ {
         // assign ch_reference (input for aligning subworkflow) to the reference in the params
         case 'reference':
             // assign the channel to the fasta
-            ch_reference = Channel.fromPath(params.genome)
+            ch_reference = Channel.fromPath(params.genome).map{genome -> tuple (genome.baseName, genome)}
             break
         
         case 'denovo':
@@ -142,18 +142,18 @@ workflow RADSEQ {
     ch_bam_bai_bed = ALIGN.out.mbam_bai
         .combine(ch_intervals.map{it[1]})
 
-    BAM_VARIANT_CALLING_FREEBAYES (
+    vcf = BAM_VARIANT_CALLING_FREEBAYES (
         ch_bam_bai_bed,
         true,
         ch_reference.map{it[1]},
         ch_faidx.map{it[1]}
-    )
+    ).vcf
 
     
     //
     // MODULE: Run FastQC
     //
-    /*FASTQC (
+    FASTQC (
         INPUT_CHECK.out.reads
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
@@ -179,7 +179,7 @@ workflow RADSEQ {
         ch_multiqc_files.collect()
     )
     multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)*/
+    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
 }
 
 /*

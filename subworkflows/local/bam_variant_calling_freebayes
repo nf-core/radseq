@@ -28,7 +28,7 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
     ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     emit:
-
+    vcf      = BCFTOOLS_CONCAT.out.vcf
 
     versions = ch_versions
 }
