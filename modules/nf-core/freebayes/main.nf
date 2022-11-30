@@ -31,7 +31,7 @@ process FREEBAYES {
     def populations_file = populations    ? "--populations ${populations}" : ""
     def cnv_file         = cnv            ? "--cnv-map ${cnv}"             : ""
     """
-    number=\$(echo "${target_bed}" | awk -F'.' '{print ${2}}')
+    number=\$(echo "${target_bed}" | awk -F'.' '{print \$2}')
     freebayes \\
         -f $fasta \\
         $targets_file \\

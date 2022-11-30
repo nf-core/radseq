@@ -9,6 +9,7 @@ process BCFTOOLS_CONCAT {
 
     input:
     tuple val(meta), path(vcfs), path(tbi)
+    val (allow_overlaps)
 
     output:
     tuple val(meta), path("*.gz"), emit: vcf
@@ -18,11 +19,13 @@ process BCFTOOLS_CONCAT {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: ''
-    prefix   = task.ext.prefix ?: "${meta.id}"
+    def args     = task.ext.args   ?: ''
+    def prefix   = task.ext.prefix ?: "${meta.id}"
+    def overlaps = allow_overlaps ? '--allow-overlaps' : ''
     """
     bcftools concat \\
         --output ${prefix}.vcf.gz \\
+        ${overlaps} \\
         $args \\
         --threads $task.cpus \\
         ${vcfs}

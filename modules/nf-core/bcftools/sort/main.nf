@@ -21,9 +21,10 @@ process BCFTOOLS_SORT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    number=\$(basename "${vcf}" | awk -F'[_.]' '{print \$2}')
     bcftools \\
         sort \\
-        --output ${prefix}_sort.vcf.gz \\
+        --output ${prefix}_\${number}_sort.vcf.gz \\
         $args \\
         $vcf
     cat <<-END_VERSIONS > versions.yml

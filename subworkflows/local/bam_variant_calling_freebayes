@@ -15,12 +15,8 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
     main:
     ch_versions = Channel.empty()
     
-    bam_bai_bed.view()
-
     FREEBAYES (bam_bai_bed, intervals, fasta.first(), fai.first(), [], [], [])
     ch_versions = ch_versions.mix(FREEBAYES.out.versions)
-
-    FREEBAYES.out.vcf.view()
 
     ch_vcfsort = BCFTOOLS_SORT (FREEBAYES.out.vcf).vcf
     ch_versions = ch_versions.mix(BCFTOOLS_SORT.out.versions)
@@ -28,7 +24,7 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
     ch_tbi = TABIX_TABIX (BCFTOOLS_SORT.out.vcf).tbi
     ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
     
-    BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).groupTuple(by:0))
+    BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).groupTuple(by:0), true)
     ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     emit:
