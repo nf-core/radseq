@@ -23,7 +23,7 @@ process BEDTOOLS_MERGE_BED {
     def prefix = task.ext.prefix ?: "${meta.id}"
     if ("$bed" == "${prefix}.bed") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
-    cat ${bed} | bedtools sort -i - | \\
+    cat ${bed} | \\
     bedtools \\
         merge \\
         -i - \\

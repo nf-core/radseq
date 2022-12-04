@@ -9,6 +9,7 @@ process BEDTOOLS_BAMTOBED {
 
     input:
     tuple val(meta), path(bam)
+    path(faidx)
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
@@ -20,12 +21,13 @@ process BEDTOOLS_BAMTOBED {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def args2 = task.ext.args2 ?: ''
     """
     bedtools \\
         bamtobed \\
         $args \\
         -i $bam \\
-        | bedtools sort > ${prefix}.bed
+        | bedtools sort -i - -faidx ${faidx} > ${prefix}.bed
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")

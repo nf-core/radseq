@@ -17,7 +17,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
     main:
     ch_versions = Channel.empty()
 
-    bed = BEDTOOLS_BAMTOBED (bam).bed
+    bed = BEDTOOLS_BAMTOBED (bam, faidx.first()).bed
     ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
 
     // split based on number and return the first element and group bed files based on shared id string
