@@ -21,7 +21,6 @@ process BEDTOOLS_BAMTOBED {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def args2 = task.ext.args2 ?: ''
     """
     bedtools \\
         bamtobed \\

@@ -128,13 +128,13 @@ workflow RADSEQ {
         ).bam_bai
 
     //
-    // SUBWORKFLOW: 
+    // SUBWORKFLOW: Get read coverage to calculate intervals off of for freeabyes multithreading
     //
     //merge_bam_bai = BAM_MERGE_INDEX_SAMTOOLS (bam_bai.map{meta, bam, bai -> [meta, bam]}, ch_reference, ch_fai).bam_bai
 
     ch_intervals = BAM_INTERVALS_BEDTOOLS (
-        ch_bam_bai.map{meta, bam, bai -> [meta, bam]}, 
-        ch_faidx,
+        ch_bam_bai.map{meta, bam, bai -> [meta, bam]},
+        ch_faidx.map{it[1]},
         PROCESS_RAD.out.read_lengths,
         params.splitByReadCoverage
         ).intervals

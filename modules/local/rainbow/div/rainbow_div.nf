@@ -11,7 +11,8 @@ process RAINBOW_DIV {
     tuple val (meta), path (cluster)
 
     output:
-    tuple val (meta), path ("*_rbdiv.out.*") , emit: rbdiv
+    tuple val (meta), path ("*_rbdiv.out")         , emit: rbdiv
+    tuple val (meta), path ("*_rbdiv.out.*")       , emit: rbdiv_multi
     tuple val (meta), path ('*.log')               , emit: log
     path "versions.yml"                            , emit: versions
 

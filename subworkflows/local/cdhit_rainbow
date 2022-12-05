@@ -33,9 +33,9 @@ workflow CDHIT_RAINBOW {
         .map {
             meta, fasta -> 
             def metaf = [:] // initialize groovy map
-            metaf.id =  meta.id.split(/\d+/)[0] // set id
-            metaf.single_end = 'true'
-            
+            metaf.id =  meta.id.split(/\d+/)[0] // set id splits at the first number appearance and retains items to the left
+            metaf.single_end = meta.single_end
+
             [metaf, fasta]
         }
         .groupTuple()
@@ -78,6 +78,10 @@ workflow CDHIT_RAINBOW {
     // div
     ch_rbdiv = RAINBOW_DIV (ch_rbcluster).rbdiv
     //TODO: ADD CHANNEL VERSION
+
+    RAINBOW_DIV.out.rbdiv
+        //.flatMap { meta, rbdiv -> [meta, rbdiv]}
+        .view()
 
     // merge
     ch_rbmerge = RAINBOW_MERGE (ch_rbdiv, sequence_type, true).rbmerge
