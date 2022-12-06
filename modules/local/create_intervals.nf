@@ -2,10 +2,10 @@ process CREATE_INTERVALS {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::bedtools=2.30.0" : null)
+    conda (params.enable_conda ? "bioconda::perl=5.26.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bedtools:2.30.0--hc088bd4_0' :
-        'quay.io/biocontainers/perl:5.22.2.1' }"
+        'https://depot.galaxyproject.org/singularity/perl:5.26.2' :
+        'quay.io/biocontainers/perl:5.26.2' }"
 
     input:
     tuple val(meta), path(cov)
@@ -22,7 +22,7 @@ process CREATE_INTERVALS {
     def prefix = task.ext.prefix ?: "$meta.id"
     if (params.method == 'denovo') {
         """
-        cat $cov $low_cov > ${prefix}_cov.split.stats
+        cat ${cov} ${low_cov} > ${prefix}_cov.split.stats
         echo "${lengths.join("\n")}" > ${prefix}_lengths.txt
         MaxLen=\$(awk '{ print length() | "sort -rn" }' ${prefix}_lengths.txt| head -1)
         MaxLen2=\$(( \$MaxLen / 2 ))
@@ -39,10 +39,15 @@ process CREATE_INTERVALS {
             else if (lc > tt && e < 1 ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1;e=1}
             else if (cov > cutoff && lc < tt ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=lc;e=0}
             }'
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            BusyBox: \$(awk -Wversion | sed '1!d; s/.*Awk //; s/,.*//')
+            perl: \$()
+        END_VERSIONS
         """
     } else {
         """
-        cat $cov $low_cov > ${prefix}_cov.split.stats
+        cat ${cov} ${low_cov} > ${prefix}_cov.split.stats
         echo "${lengths.join("\n")}" > ${prefix}_lengths.txt
         MaxLen=\$(awk '{ print length() | "sort -rn" }' ${prefix}_lengths.txt| head -1)
         MaxLen2=\$(( \$MaxLen / 2 ))

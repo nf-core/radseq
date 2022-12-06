@@ -37,8 +37,6 @@ workflow CALC_READ_LENGTHS {
     //READ_LENGTH_STATS (sequence.collect())
     //ch_versions = ch_versions.mix(READ_LENGTH_STATS.out.versions)
 
-    //READ_LENGTH_STATS.out.std.view()
-
     emit:
     split_highcov_intervals = READ_LENGTH_STATS.out.split_highcov_intervals
     bwa_mem_denovo_param = READ_LENGTH_STATS.out.bwa_mem_denovo_param

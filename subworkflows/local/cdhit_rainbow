@@ -77,15 +77,11 @@ workflow CDHIT_RAINBOW {
 
     // div
     ch_rbdiv = RAINBOW_DIV (ch_rbcluster).rbdiv
-    //TODO: ADD CHANNEL VERSION
-
-    RAINBOW_DIV.out.rbdiv
-        //.flatMap { meta, rbdiv -> [meta, rbdiv]}
-        .view()
+    ch_versions = ch_versions.mix(RAINBOW_DIV.out.versions) // contains awk code not provided in the versions.yml file TODO: awk BusyBox trouble w/ extracting version number within container
 
     // merge
     ch_rbmerge = RAINBOW_MERGE (ch_rbdiv, sequence_type, true).rbmerge
-    //TODO: ADD CHANNEL VERSION
+    ch_versions = ch_versions.mix(RAINBOW_MERGE.out.versions)
 
     // output fasta
     ch_fasta = WRITE_FASTA (ch_rbdiv, ch_rbmerge).fasta

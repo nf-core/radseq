@@ -9,7 +9,7 @@ process BEDTOOLS_BAMTOBED {
 
     input:
     tuple val(meta), path(bam)
-    tuple val(meta2), path(faidx)
+    path(faidx)
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
@@ -26,7 +26,8 @@ process BEDTOOLS_BAMTOBED {
         bamtobed \\
         $args \\
         -i $bam \\
-        | bedtools sort -i - -faidx ${faidx} > ${prefix}.bed
+        | bedtools sort -i - -faidx ${faidx} > ${prefix}.bed \\
+        | bedtools merge -i - > ${prefix}.bed
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")
