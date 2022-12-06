@@ -9,7 +9,7 @@ process BEDTOOLS_BAMTOBED {
 
     input:
     tuple val(meta), path(bam)
-    path(faidx)
+    tuple val(meta2), path(faidx)
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
