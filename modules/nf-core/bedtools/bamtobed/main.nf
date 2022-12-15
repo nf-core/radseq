@@ -26,8 +26,7 @@ process BEDTOOLS_BAMTOBED {
         bamtobed \\
         $args \\
         -i $bam \\
-        | bedtools sort -i - -faidx ${faidx} > ${prefix}.bed \\
-        | bedtools merge -i - > ${prefix}.bed
+        | bedtools sort -i - -faidx ${faidx} > ${prefix}.bed    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")
