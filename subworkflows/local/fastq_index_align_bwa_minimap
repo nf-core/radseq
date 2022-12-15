@@ -2,14 +2,15 @@
 // Align reads w/ BWA or MINIMAP
 //
 
-include { BWA_INDEX                } from '../../modules/nf-core/bwa/index/main.nf'
-include { BWA_MEM                  } from '../../modules/nf-core/bwa/mem/main.nf'
+include { BWA_INDEX                                      } from '../../modules/nf-core/bwa/index/main.nf'
+include { BWA_MEM                                        } from '../../modules/nf-core/bwa/mem/main.nf'
 //include { MINIMAP_INDEX          } from '../../modules/nf-core/minimap/index/main.nf'
-include { MINIMAP2_ALIGN           } from '../../modules/nf-core/minimap2/align/main.nf'
-include { UMITOOLS_DEDUP           } from '../../modules/nf-core/umitools/dedup/main.nf'
-include { SAMTOOLS_INDEX           } from '../../modules/nf-core/samtools/index/main.nf'
-include { BAM_STATS_SAMTOOLS       } from '../nf-core/bam_stats_samtools/main.nf'
-include { BAM_MERGE_INDEX_SAMTOOLS } from '../nf-core/bam_merge_index_samtools/main.nf'
+include { MINIMAP2_ALIGN                                 } from '../../modules/nf-core/minimap2/align/main.nf'
+include { UMITOOLS_DEDUP                                 } from '../../modules/nf-core/umitools/dedup/main.nf'
+include {SAMTOOLS_INDEX as SAMTOOLS_INDEX_UMI            } from '../../modules/nf-core/samtools/index/main.nf'
+include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_BAM           } from '../../modules/nf-core/samtools/index/main.nf'
+include { BAM_STATS_SAMTOOLS                             } from '../nf-core/bam_stats_samtools/main.nf'
+include { BAM_MERGE_INDEX_SAMTOOLS                       } from '../nf-core/bam_merge_index_samtools/main.nf'
 
 
 workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
@@ -62,12 +63,14 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             umi: meta.umi_barcodes == true
             no_umi: meta.umi_barcodes == false
         }
-
+    // need indices with bam files for umitools dedup
+    bam_bai_to_umi = SAMTOOLS_INDEX_UMI(bam_to_umi.umi).bai.join(bam_to_umi.umi).map{meta, bai, bam -> [meta, bam, bai]}
+    
     // query only reads that satisfied the above condition
-    umi_bam = UMITOOLS_DEDUP (bam_to_umi.umi, false)
+    umi_bam = UMITOOLS_DEDUP (bam_bai_to_umi, false).bam
 
-    bai = SAMTOOLS_INDEX (bam_to_umi.no_umi.mix(umi_bam)).bai
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+    bai = SAMTOOLS_INDEX_BAM (bam_to_umi.no_umi.mix(umi_bam)).bai
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX_BAM.out.versions)
 
     // add deduplicated umi reads to no_umi channnel and join the index's
     bam_bai = bam_to_umi.no_umi
