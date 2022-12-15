@@ -3,7 +3,7 @@ include { COMBINE_UNIQUE_READS         } from '../../modules/local/combine_uniq_
 include { SEQTK_SEQ                    } from '../../modules/nf-core/seqtk/seq/main.nf'
 include { FASTP as DENOVO_FASTP        } from '../../modules/local/fastp.nf'
 include { CDHIT                        } from '../../modules/local/cdhit.nf' // cd-hit
-include { CDHIT_TO_RBCLSTR             } from '../../modules/local/cdhit_to_rbclstr.nf'
+include { CDHIT_TO_RBDIV             } from '../../modules/local/cdhit_to_rbdiv.nf'
 include { RAINBOW_DIV                  } from '../../modules/local/rainbow/div/rainbow_div.nf' // rainbow div
 include { RAINBOW_MERGE                } from '../../modules/local/rainbow/merge/rainbow_merge.nf' // rainbow merge
 include { RBMERGE2FASTA as WRITE_FASTA } from '../../modules/local/rbmerge2fasta.nf' // write fasta
@@ -51,7 +51,7 @@ workflow CDHIT_RAINBOW {
     if (params.minReadDepth_BetweenIndividual) {
         minReadDepth_BetweenIndividual = Channel.fromList (params.minReadDepth_BetweenIndividual)
     } else {
-        minReadDepth_BetweenIndividual = Channel.fromList ([2])    
+        minReadDepth_BetweenIndividual = Channel.fromList ([2])
     }
 
 
@@ -72,7 +72,7 @@ workflow CDHIT_RAINBOW {
     //TODO: ADD CHANNEL VERSION
 
     // cd-hit cluster to rainbow cluster format
-    ch_rbcluster = CDHIT_TO_RBCLSTR (ch_cdhit_cluster, DENOVO_FASTP.out.totaluniqseq, sequence_type).rbcluster
+    ch_rbcluster = CDHIT_TO_RBDIV (ch_cdhit_cluster, DENOVO_FASTP.out.totaluniqseq, sequence_type).rbcluster
     //TODO: ADD CHANNEL VERSION
 
     // div

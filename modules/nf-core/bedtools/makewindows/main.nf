@@ -16,6 +16,7 @@ process BEDTOOLS_MAKEWINDOWS {
     output:
     tuple val(meta), path("*.tab")           , emit: tab
     tuple val(meta), path("*_cov.low.stats") , emit: low_cov
+    tuple val(meta), path("*_cov.high.stats"), emit: high_cov
     path "versions.yml"                      , emit: versions
 
     when:

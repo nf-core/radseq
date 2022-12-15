@@ -122,7 +122,6 @@ workflow RADSEQ {
         PROCESS_RAD.out.trimmed_reads, 
         ch_reference, 
         ch_faidx,
-        params.bwamem_sort_view, 
         params.sequence_type, 
         PROCESS_RAD.out.read_lengths
         ).bam_bai

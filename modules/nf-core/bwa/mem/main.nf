@@ -12,7 +12,7 @@ process BWA_MEM {
     tuple val(meta2), path(index)
     val   sort_bam
     val   sequence_type
-    val  lengths
+    val   lengths
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
@@ -40,7 +40,6 @@ process BWA_MEM {
         bwa mem \\
             $args \\
             -I \$INSERT,\$SD,\$INSERTH,\$INSERTL \\
-            -L 20,5 -a -M -T 10 \\
             -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
             -t $task.cpus \\
             \$INDEX \\
@@ -59,7 +58,6 @@ process BWA_MEM {
 
         bwa mem \\
             $args \\
-            -L 20,5 -a -M -T 10 \\
             -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
             -t $task.cpus \\
             \$INDEX \\

@@ -1,7 +1,3 @@
-/*
-10 N's is a spacer and can be converted 
-
-*/
 process COMBINE_UNIQUE_READS {
     tag "${meta.id}"
     label 'process_medium'
@@ -22,13 +18,11 @@ process COMBINE_UNIQUE_READS {
     each acrossIndv_MinDepth // number of unique individuals w/ reads
 
     output:
-    tuple val (meta), path ('uniq.full.fasta'), emit: uniq_reads
+    tuple val (meta), path ('*_uniq.full.fasta'), emit: uniq_reads
     //tuple val (meta), path ('totaluniqseq'), emit: totaluniqseq
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def args = task.ext.args ?: ''
-    //def withinIndv_MinDepth = task.ext.withinIndv_MinDepth ?: ''
     if (type == 'RPE' || type == 'ROL') {
         """
         awk -v x="${withinIndv_MinDepth}" '(\$1 >= x)' *.uniq.seqs | \\
@@ -55,7 +49,7 @@ process COMBINE_UNIQUE_READS {
         
         sort -k1 -r -n -S 2G uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs | \\
         cut -f2 > totaluniqseq
-        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > uniq.full.fasta
+        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > ${prefix}_uniq.full.fasta
         """
     } else {
         """
@@ -64,11 +58,11 @@ process COMBINE_UNIQUE_READS {
         perl -e 'while (<>) {chomp; \$z{\$_}++;} while((\$k,\$v) = each(%z)) {print "\$v\\t\$k\\n";}' | \\
         awk -v x=${acrossIndv_MinDepth} '(\$1 >= x)' > uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs
         
-        # for reproducibility 
+        # order the sequences for reproducibility 
         sort -k1 -r -n -S 2G uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs | \\
         cut -f2 > totaluniqseq 
         
-        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > uniq.full.fasta
+        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > ${prefix}_uniq.full.fasta
         """
     }
 }

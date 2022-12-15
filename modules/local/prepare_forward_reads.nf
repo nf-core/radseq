@@ -1,19 +1,3 @@
-/*
-    # Take DNA characters out of fastq
-    # Simplify data 
-    # PE
-    # RPE - use special unique function
-    # SE
-    # OL  
-    # Using really long read technology
-        # Short reads 
-        # Long Reads
-        # MiSEQ
-    # HYB - Can leave out
-
-    # Total up the data
-*/
-
 process PREPARE_FORWARD_READS {
     tag "${meta.id}"
     label 'process_medium'

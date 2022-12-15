@@ -20,7 +20,6 @@ process SEQTK_SEQ {
     script:
     def args = task.ext.args ?: '-F I'
     def prefix = task.ext.prefix ?: "${meta.id}"
-
     def extension = "fastq"
     if ("$fastx" ==~ /.+\.fasta|.+\.fasta.gz|.+\.fa|.+\.fa.gz|.+\.fas|.+\.fas.gz|.+\.fna|.+\.fna.gz/ || "$args" ==~ /\-[aA]/ ) {
         extension = "fasta"

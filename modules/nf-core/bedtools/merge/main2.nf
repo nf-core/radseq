@@ -26,7 +26,6 @@ process BEDTOOLS_MERGE_COV {
     bedtools \\
         merge \\
         -i - \\
-        -c 4 -o sum \\
         $args \\
         > ${prefix}.cov
     cat <<-END_VERSIONS > versions.yml

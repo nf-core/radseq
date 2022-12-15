@@ -29,6 +29,9 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "umi_barcodes": {
+                "errorMessage": "Boolean that describes if the read contains UMI barcodes must be binary 'TRUE' or 'FALSE'"
             }
         },
         "required": [

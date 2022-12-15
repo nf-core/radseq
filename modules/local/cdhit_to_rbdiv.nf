@@ -1,4 +1,4 @@
-process CDHIT_TO_RBCLSTR {
+process CDHIT_TO_RBDIV {
     tag "meta.id"
     label 'process_medium'
     
