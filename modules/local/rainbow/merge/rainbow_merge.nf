@@ -23,7 +23,7 @@ process RAINBOW_MERGE {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     def output_assembly = save_assembly ? '-a' : ''
-    def args = task.ext.args ?: '-r 2 -N10000 -R10000 -l 20 -f 0.75'
+    def args = task.ext.args ?: ''
     // change default arguments based on data
     """
     rainbow merge -i ${rbdiv} -o ${prefix}_rbmerge.out \

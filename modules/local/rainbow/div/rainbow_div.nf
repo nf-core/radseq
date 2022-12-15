@@ -20,7 +20,7 @@ process RAINBOW_DIV {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '-f 0.5 -K 10'
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     rainbow div -i ${cluster} -o ${prefix}_rbdiv.out \
