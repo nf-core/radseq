@@ -87,11 +87,7 @@ The nf-core/radseq pipeline comes with documentation about the pipeline [usage](
 
 ## Credits
 
-nf-core/radseq was originally written by Gabriel Barrett.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+dDocent was originally written by [Jon Puritz](https://github.com/jpuritz) and developed into nf-core/radseq by [Gabriel Barrett](https://github.com/Gabriel-A-Barrett)
 
 ## Contributions and Support
 
