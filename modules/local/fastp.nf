@@ -100,9 +100,9 @@ process FASTP {
             fastp: \$(fastp --version 2>&1 | sed -e "s/fastp //g")
         END_VERSIONS
         """
-    } else if (!meta.single_end && meta.umi_tools) {
+    } else if (!meta.single_end && meta.umi_barcodes) {
         def merge_fastq = save_merged ? "-m --merged_out ${prefix}.merged.fastq.gz" : ''
-        def umi_args = task.ext.umi_params ?: ''
+        def umi_args = task.ext.umi_args ?: ''
         """
         [ ! -f  ${prefix}_1.fastq.gz ] && ln -sf ${reads[0]} ${prefix}_1.fastq.gz
         [ ! -f  ${prefix}_2.fastq.gz ] && ln -sf ${reads[1]} ${prefix}_2.fastq.gz
@@ -125,8 +125,8 @@ process FASTP {
             fastp: \$(fastp --version 2>&1 | sed -e "s/fastp //g")
         END_VERSIONS
         """
-    } else if (meta.single_end && meta.umi_tools) {
-        def umi_args = task.ext.umi_params ?: '' 
+    } else if (meta.single_end && meta.umi_barcodes) {
+        def umi_args = task.ext.umi_args ?: '' 
         """
         [ ! -f  ${prefix}.fastq.gz ] && ln -sf $reads ${prefix}.fastq.gz
         fastp \\
@@ -137,8 +137,8 @@ process FASTP {
             --json ${prefix}.fastp.json \\
             --html ${prefix}.fastp.html \\
             $fail_fastq \\
-            $args \\
             $umi_args \\
+            $args \\
             2> ${prefix}.fastp.log
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
