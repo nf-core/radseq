@@ -20,7 +20,6 @@ process BEDOPS_BAMTOBED {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if ("$bed" == "${prefix}.bed") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
     bamtobed ${bam} \\
     ${args} \\
