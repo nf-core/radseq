@@ -20,7 +20,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
     main:
     ch_versions = Channel.empty()
 
-    ch_bed = BEDOPS_BAMTOBED (bam, faidx.first()).bed
+    ch_bed = BEDOPS_BAMTOBED (bam).bed
     //ch_bed = BEDTOOLS_BAMTOBED (bam, faidx.first()).bed
     //ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
 
