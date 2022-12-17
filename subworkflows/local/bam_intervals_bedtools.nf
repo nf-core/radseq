@@ -1,5 +1,5 @@
 include { BEDTOOLS_BAMTOBED             } from '../../modules/nf-core/bedtools/bamtobed/main.nf'
-include { BEDOPS_BAMTOBED               } from '../../modules/nf-core/bedops/merge/main.nf'
+include { BEDOPS_BAMTOBED               } from '../../modules/nf-core/bedops/bamtobed/main.nf'
 include { BEDOPS_MERGE_BED              } from '../../modules/local/bedops/merge/main.nf'
 include { BEDTOOLS_SORT                 } from '../../modules/nf-core/bedtools/sort/main.nf'
 include { BEDTOOLS_COVERAGE             } from '../../modules/nf-core/bedtools/coverage/main.nf'
