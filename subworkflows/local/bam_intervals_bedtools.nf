@@ -1,5 +1,5 @@
 include { BEDTOOLS_BAMTOBED             } from '../../modules/nf-core/bedtools/bamtobed/main.nf'
-include { BEDOPS_BAMTOBED               } from '../../modules/local/bedops/bamtobed/main.nf'
+//include { BEDOPS_BAMTOBED               } from '../../modules/local/bedops/bamtobed/main.nf'
 include { BEDOPS_MERGE_BED              } from '../../modules/local/bedops/merge/main.nf'
 include { BEDTOOLS_SORT                 } from '../../modules/nf-core/bedtools/sort/main.nf'
 include { BEDTOOLS_COVERAGE             } from '../../modules/nf-core/bedtools/coverage/main.nf'
@@ -20,9 +20,8 @@ workflow BAM_INTERVALS_BEDTOOLS {
     main:
     ch_versions = Channel.empty()
 
-    ch_bed = BEDOPS_BAMTOBED (bam).bed
-    //ch_bed = BEDTOOLS_BAMTOBED (bam, faidx.first()).bed
-    //ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
+    ch_bed = BEDTOOLS_BAMTOBED (bam, faidx.first()).bed
+    ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
 
     ch_bed_to_merge = ch_bed.map {
         meta, bed -> 
