@@ -1,6 +1,6 @@
-process BEDOPS_MERGE_BED {
+process BEDOPS_BAMTOBED {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_low'
 
     conda (params.enable_conda ? "bioconda::bedops=2.4.41" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -8,10 +8,10 @@ process BEDOPS_MERGE_BED {
         'quay.io/biocontainers/bedops:2.4.41--h9f5acd7_0' }"
 
     input:
-    tuple val(meta), path(bed)
+    tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path('*.cov'), emit: bed
+    tuple val(meta), path('*.bed'), emit: bed
     path  "versions.yml"          , emit: versions
 
     when:
@@ -22,9 +22,9 @@ process BEDOPS_MERGE_BED {
     def prefix = task.ext.prefix ?: "${meta.id}"
     if ("$bed" == "${prefix}.bed") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
-    bedops --merge ${bed.collect().join(" ")} \\
+    bamtobed ${bam} \\
     ${args} \\
-    > ${prefix}.cov
+    > ${prefix}.bed
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedops: \$(bedops --version | sed -n '/version:/p' | cut -d' ' -f 5)
