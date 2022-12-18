@@ -18,13 +18,13 @@ process BCFTOOLS_SORT {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args     = task.ext.args ?: ''
+    def prefix   = task.ext.prefix ?: "${meta.id}"
+    def interval = meta.interval  ? '_' + meta.interval : ''
     """
-    number=\$(basename "${vcf}" | awk -F'[_.]' '{print \$2}')
     bcftools \\
         sort \\
-        --output ${prefix}_\${number}_sort.vcf.gz \\
+        --output ${prefix}${interval}_sort.vcf.gz \\
         $args \\
         $vcf
     cat <<-END_VERSIONS > versions.yml

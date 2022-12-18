@@ -11,7 +11,7 @@ process BEDOPS_BAMTOBED {
     tuple val(meta), path(bam)
 
     output:
-    tuple val(meta), path('*.bed'), emit: bed
+    tuple val(meta), path('*_sed.bed'), emit: bed
     path  "versions.yml"          , emit: versions
 
     when:
@@ -21,9 +21,10 @@ process BEDOPS_BAMTOBED {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    bamtobed ${bam} \\
+    convert2bed --input=bam < ${bam} \\
     ${args} \\
-    > ${prefix}.bed
+    > ${prefix}.bed 
+    sed -i 's,\\t*\$,,' ${prefix}.bed > ${prefix}_sed.bed 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedops: \$(bedops --version | sed -n '/version:/p' | cut -d' ' -f 5)

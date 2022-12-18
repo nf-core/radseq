@@ -76,7 +76,7 @@ workflow RADSEQ {
     INPUT_CHECK (
         ch_input
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions.first())
 
     //
     // SUBWORKFLOW: REMOVE LOW QUALITY READS, TRIM UMI's, DEMULTIPLEX POOLED FILES
@@ -84,36 +84,35 @@ workflow RADSEQ {
     PROCESS_RAD (
         INPUT_CHECK.out.reads
     )
+    //ch_versions = ch_versions.mix(PROCESS_RAD.out.versions)
 
-    // DO YOU HAVE A REFERENCE? If not we'll make a psuedoreference
+    // assign fasta channel based on method in config file
     switch ( params.method ) {
-        
         // assign ch_reference (input for aligning subworkflow) to the reference in the params
         case 'reference':
-            // assign the channel to the fasta
-            ch_reference = Channel.fromPath(params.genome).map{genome -> tuple (genome.baseName, genome)}
+            ch_reference = Channel.fromPath(params.genome)
+                .map{genome -> tuple (genome.simpleName, genome)} 
             break
-        
         case 'denovo':
-            
             /* SUBWORKFLOW: Cluster READS after applying unique read thresholds within and among samples.
-            *   option to provide a list of minimum depth thresholds. See nextflow.config for more details
-            *   assign outputed fasta to ch_reference
-            */   
+            *   option to provide a list of minimum depth thresholds. See nextflow.config for more details*/
             ch_reference = DENOVO (
-                INPUT_CHECK.out.reads, params.sequence_type // sequence type exe.: 'SE', 'PE', ''
+                INPUT_CHECK.out.reads, 
+                params.sequence_type // sequence type exe.: 'SE', 'PE', ''
             ).fasta
-            //TODO: add channel versions 
+            //ch_versions = ch_versions.mix(DENOVO.out.versions.first())
             break
-        
         // exit 1 (container shut down: application failure or invalid file) ends the process using signal 7
         // if something other than the above cases is stated stop the workflow 
         default:
-            exit 1, "unknown method: ${method} \n supported options: \n\treference\n\tdenovo"
+            exit 1, "unknown method: ${method} \n supported options:" + params.method_options
     }
 
-    // nf-core module to index the reference for Freebayes
-    ch_faidx = SAMTOOLS_FAIDX (ch_reference).fai
+    // nf-core module index reference for bedtools + freebayes
+    ch_faidx = SAMTOOLS_FAIDX (
+        ch_reference
+        ).fai
+    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions.first())
 
     //
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
@@ -140,6 +139,13 @@ workflow RADSEQ {
 
     ch_bam_bai_bed = ALIGN.out.mbam_bai
         .combine(ch_intervals.map{it[1]})
+        .map { meta, bam, bai, bed -> 
+            [[
+                id:           meta.id,
+                interval:     bed.getName().tokenize( '.' )[1]
+            ],
+            bam, bai, bed]
+        }
 
     vcf = BAM_VARIANT_CALLING_FREEBAYES (
         ch_bam_bai_bed,
@@ -173,6 +179,7 @@ workflow RADSEQ {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(ALIGN.out.stats.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect()

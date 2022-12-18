@@ -1,6 +1,6 @@
 process BEDTOOLS_MERGE_COV {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_high_memory'
 
     conda (params.enable_conda ? "bioconda::bedtools=2.30.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

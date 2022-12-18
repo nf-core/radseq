@@ -30,8 +30,8 @@ process FREEBAYES {
     def samples_file     = samples        ? "--samples ${samples}"         : ""
     def populations_file = populations    ? "--populations ${populations}" : ""
     def cnv_file         = cnv            ? "--cnv-map ${cnv}"             : ""
+    def interval         = meta.interval  ? '_' + meta.interval : ''
     """
-    number=\$(echo "${target_bed}" | awk -F'.' '{print \$2}')
     freebayes \\
         -f $fasta \\
         $targets_file \\
@@ -40,7 +40,7 @@ process FREEBAYES {
         $cnv_file \\
         $args \\
         $bam | \\
-    bgzip -c > ${prefix}_\$number.vcf.gz
+    bgzip -c > ${prefix}${interval}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

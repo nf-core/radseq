@@ -1,9 +1,8 @@
 include { BEDTOOLS_BAMTOBED             } from '../../modules/nf-core/bedtools/bamtobed/main.nf'
-//include { BEDOPS_BAMTOBED               } from '../../modules/local/bedops/bamtobed/main.nf'
+include { BEDOPS_BAMTOBED               } from '../../modules/local/bedops/bamtobed/main.nf'
 include { BEDOPS_MERGE_BED              } from '../../modules/local/bedops/merge/main.nf'
 include { BEDTOOLS_SORT                 } from '../../modules/nf-core/bedtools/sort/main.nf'
 include { BEDTOOLS_COVERAGE             } from '../../modules/nf-core/bedtools/coverage/main.nf'
-include { BEDOPS_MERGE_BED as MERGE_COV } from '../../modules/local/bedops/merge/main.nf'
 include { BEDTOOLS_MERGE_COV            } from '../../modules/nf-core/bedtools/merge/main2.nf'
 include { CREATE_INTERVALS              } from '../../modules/local/create_intervals.nf'
 include { BEDTOOLS_MAKEWINDOWS          } from '../../modules/nf-core/bedtools/makewindows/main.nf'
@@ -45,11 +44,10 @@ workflow BAM_INTERVALS_BEDTOOLS {
         }
         .groupTuple()
 
-    //ch_mcov = MERGE_COV (ch_cov_to_merge).bed
-
     ch_mcov = BEDTOOLS_MERGE_COV (ch_cov_to_merge).cov
-    //ch_versions = ch_versions.mix (BEDTOOLS_MERGE_COV.out.versions)
+    ch_versions = ch_versions.mix (BEDTOOLS_MERGE_COV.out.versions)
 
+    // split into 2 files: high and low then make intervals across the genome based
     ch_tab = BEDTOOLS_MAKEWINDOWS (ch_mcov, true, read_lengths, params.splitByReadCoverage).tab
     ch_versions = ch_versions.mix (BEDTOOLS_MAKEWINDOWS.out.versions)
 
@@ -59,11 +57,12 @@ workflow BAM_INTERVALS_BEDTOOLS {
     ch_versions = ch_versions.mix (BEDTOOLS_INTERSECT.out.versions)
 
     ch_intervals = CREATE_INTERVALS (ch_intersect, BEDTOOLS_MAKEWINDOWS.out.low_cov, read_lengths).intervals.transpose()
-    //TODO: add channle versions
+    //TODO: add channel versions
+
+    //update the meta
 
     emit:
     intervals = ch_intervals
-
 
     versions = ch_versions
 

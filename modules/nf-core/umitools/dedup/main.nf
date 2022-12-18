@@ -1,6 +1,6 @@
 process UMITOOLS_DEDUP {
     tag "$meta.id"
-    label "process_medium"
+    label "process_super"
 
     conda (params.enable_conda ? "bioconda::umi_tools=1.1.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

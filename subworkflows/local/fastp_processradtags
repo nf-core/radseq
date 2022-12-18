@@ -8,8 +8,6 @@ workflow PROCESS_RAD {
     main:
     ch_versions = Channel.empty()
 
-    //CALC_READ_LENGTHS (reads)
-    //ch_versions = ch_versions.mix(CALC_READ_LENGTHS.out.versions)
     reads
         .map {
             meta, reads -> 
@@ -30,8 +28,6 @@ workflow PROCESS_RAD {
 
     emit:
     trimmed_reads = ch_fastp
-    //bwa_mem_denovo_param = CALC_READ_LENGTHS.out.bwa_mem_denovo_param
-    //split_highcov_intervals = CALC_READ_LENGTHS.out.split_highcov_intervals
     read_lengths
 
     versions = ch_versions
