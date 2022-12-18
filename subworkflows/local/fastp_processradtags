@@ -29,6 +29,7 @@ workflow PROCESS_RAD {
     emit:
     trimmed_reads = ch_fastp
     read_lengths
+    fastp_json    = FASTP.out.json
 
     versions = ch_versions
 
