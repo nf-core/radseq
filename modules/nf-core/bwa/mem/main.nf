@@ -22,9 +22,10 @@ process BWA_MEM {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def args2 = task.ext.args2 ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args =   task.ext.args      ?: ''
+    def args2 =  task.ext.args2     ?: ''
+    def args3 =  task.ext.args3     ?: ''
+    def prefix = task.ext.prefix    ?: "${meta.id}"
     def samtools_command = sort_bam ? 'sort' : 'view'
     if (sequence_type == 'PE' && params.method == 'denovo') {
         """
@@ -44,8 +45,8 @@ process BWA_MEM {
             -t $task.cpus \\
             \$INDEX \\
             $reads \\
-            | samtools view -S -h -u -q 1 \\
-            | samtools $samtools_command $args2 --threads $task.cpus -o ${prefix}.bam -
+            | samtools view $args2 \\
+            | samtools sort $args3 --threads $task.cpus -o ${prefix}.bam -
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -63,7 +64,8 @@ process BWA_MEM {
             -t $task.cpus \\
             \$INDEX \\
             $reads \\
-            | samtools $samtools_command $args2 --threads $task.cpus -o ${prefix}.bam -
+            | samtools view $args2 \\
+            | samtools sort $args3 --threads $task.cpus -o ${prefix}.bam -
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
