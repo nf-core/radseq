@@ -44,6 +44,7 @@ process BWA_MEM {
             -t $task.cpus \\
             \$INDEX \\
             $reads \\
+            | samtools view -S -h -u -q 1 \\
             | samtools $samtools_command $args2 --threads $task.cpus -o ${prefix}.bam -
 
         cat <<-END_VERSIONS > versions.yml
