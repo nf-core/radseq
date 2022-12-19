@@ -44,7 +44,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
         }
         .groupTuple()
 
-    ch_mcov = BEDTOOLS_MERGE_COV (ch_cov_to_merge).cov
+    ch_mcov = BEDTOOLS_MERGE_COV (ch_cov_to_merge, faidx.first()).cov
     ch_versions = ch_versions.mix (BEDTOOLS_MERGE_COV.out.versions)
 
     // split into 2 files: high and low then make intervals across the genome based

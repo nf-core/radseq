@@ -112,7 +112,7 @@ workflow RADSEQ {
     ch_faidx = SAMTOOLS_FAIDX (
         ch_reference
         ).fai
-    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
 
     //
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics

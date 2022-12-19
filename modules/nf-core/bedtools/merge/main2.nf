@@ -9,6 +9,7 @@ process BEDTOOLS_MERGE_COV {
 
     input:
     tuple val(meta), path(cov)
+    path(faidx)
 
     output:
     tuple val(meta), path('*.cov'), emit: cov
@@ -22,7 +23,7 @@ process BEDTOOLS_MERGE_COV {
     def prefix = task.ext.prefix ?: "${meta.id}"
     if ("$cov" == "${prefix}.cov") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
-    cat ${cov} | sort -k1,1 -k2,2n | \\
+    cat ${cov} | bedtools sort -i - -faidx ${faidx} | \\
     bedtools \\
         merge \\
         -i - \\
