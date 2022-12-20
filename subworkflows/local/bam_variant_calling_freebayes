@@ -25,8 +25,7 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
 
     ch_tbi = TABIX_TABIX (BCFTOOLS_SORT.out.vcf).tbi
     ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
-    
-    BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).groupTuple(by:0), true)
+    BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).map{meta,vcf,tbi->[[id:meta.id],vcf,tbi]}.groupTuple(by:0), true)
     ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     emit:

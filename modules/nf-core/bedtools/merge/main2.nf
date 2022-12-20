@@ -24,12 +24,13 @@ process BEDTOOLS_MERGE_COV {
     if ("$cov" == "${prefix}.cov") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
     cat ${cov} > ${prefix}_tmp.cov
-    bedtools sort -i ${prefix}_tmp.cov -faidx ${faidx} | \\
+    sort -k1,1 -k2,2n ${prefix}_tmp.cov | \\
     bedtools \\
         merge \\
         -i - \\
         $args \\
         > ${prefix}.cov
+    rm ${prefix}_tmp.cov
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")
