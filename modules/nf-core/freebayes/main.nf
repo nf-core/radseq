@@ -30,7 +30,7 @@ process FREEBAYES {
     def samples_file     = samples        ? "--samples ${samples}"         : ""
     def populations_file = populations    ? "--populations ${populations}" : ""
     def cnv_file         = cnv            ? "--cnv-map ${cnv}"             : ""
-    def interval         = meta.interval  ? '_' + meta.interval : ''
+    def interval         = meta.interval  ? '_' + meta.interval            : ''
     """
     freebayes \\
         -f $fasta \\
