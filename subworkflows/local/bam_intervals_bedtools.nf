@@ -19,7 +19,13 @@ workflow BAM_INTERVALS_BEDTOOLS {
     main:
     ch_versions = Channel.empty()
 
-    ch_bed = BEDTOOLS_BAMTOBED (bam, faidx.first()).bed
+    if (params.subset_intervals_channel) {
+        ch_bam = bam.randomSample(params.subset_intervals_channel)
+    } else {
+        ch_bam = bam
+    }
+
+    ch_bed = BEDTOOLS_BAMTOBED (ch_bam, faidx.first()).bed
     ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
 
     ch_bed_to_merge = ch_bed.map {
