@@ -11,7 +11,7 @@ process BEDOPS_MERGE_BED {
     tuple val(meta), path(bed)
 
     output:
-    tuple val(meta), path('*.cov'), emit: bed
+    tuple val(meta), path('*.bed'), emit: bed
     path  "versions.yml"          , emit: versions
 
     when:
@@ -24,7 +24,7 @@ process BEDOPS_MERGE_BED {
     """
     bedops --merge ${bed.collect().join(" ")} \\
     ${args} \\
-    > ${prefix}.cov
+    > ${prefix}.bed
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedops: \$(bedops --version | sed -n '/version:/p' | cut -d' ' -f 5)
