@@ -53,8 +53,8 @@ process CREATE_INTERVALS {
         MaxLen2=\$(( \$MaxLen / 2 ))
         
         TT=\$(( \$MaxLen2 * 1000000 ))
-        DP=\$(awk '{print \$4}' cov.stats | sort -rn | perl -e '\$d=.00005;@l=<>;print \$l[int(\$d*@l)]')
-        CC=\$( awk -v x=\$DP '\$4 < x' cov.stats | awk '{len=\$3-\$2;lc=len*\$4;tl=tl+lc} END {OFMT = "%.0f";print tl/"'${task.cpus}'"}')
+        DP=\$(awk '{print \$4}' ${cov} | sort -rn | perl -e '\$d=.00005;@l=<>;print \$l[int(\$d*@l)]')
+        CC=\$( awk -v x=\$DP '\$4 < x' ${cov} | awk '{len=\$3-\$2;lc=len*\$4;tl=tl+lc} END {OFMT = "%.0f";print tl/"'${task.cpus}'"}')
         
         awk -v x=\$DP '\$4 < x' ${prefix}_cov.split.stats | sort -k1,1 -k2,2 | awk -v cutoff=\$CC -v tt=\$TT 'BEGIN{i=1}
             {len=\$3-\$2;lc=len*\$4;cov = cov + lc
