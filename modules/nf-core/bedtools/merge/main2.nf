@@ -24,7 +24,7 @@ process BEDTOOLS_MERGE_COV {
     if ("$cov" == "${prefix}.cov") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
     cat ${cov} | \\
-    bedtools sort -i ${prefix}_tmp.cov -faidx ${faidx} | \\
+    bedtools sort -i - -faidx ${faidx} | \\
     bedtools \\
         merge \\
         -i - \\
