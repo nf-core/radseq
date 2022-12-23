@@ -117,6 +117,7 @@ workflow RADSEQ {
     //
     // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
     //      if denovo and paired then provide length_stats to bwa mem
+    
     ch_bam_bai = ALIGN (
         PROCESS_RAD.out.trimmed_reads, 
         ch_reference, 
@@ -125,10 +126,22 @@ workflow RADSEQ {
         PROCESS_RAD.out.read_lengths
         ).bam_bai
 
+    /* Option to filter out poorly mapping individuals
+    aln = bam_stats.out.stats
+        .splitCsv(sep:'\t') // converts file into channel formating (each row). else prints file literal string
+        .map { // assign variable to column subsets and convert 2nd col. to class float
+            def key = it[0].toString().tokenize('.').get(0) // similar to cut -d
+            def mappingrate = it[1].toFloat()
+            [ key, mappingrate ]
+            }
+        .filter ({ key, mappingrate -> mappingrate >= .75}) // retain samples with a mapping greater than 75%
+        .join( id_aln_file ) // outputs [key, stat, bam, bai]
+        .map { it[2] } // retain only bam records (3rd column)
+    */
+    
     //
     // SUBWORKFLOW: Get read coverage to calculate intervals off of for freeabyes multithreading
     //
-    //merge_bam_bai = BAM_MERGE_INDEX_SAMTOOLS (bam_bai.map{meta, bam, bai -> [meta, bam]}, ch_reference, ch_fai).bam_bai
 
     ch_intervals = BAM_INTERVALS_BEDTOOLS (
         ch_bam_bai.map{meta, bam, bai -> [meta, bam]},

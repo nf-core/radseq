@@ -30,7 +30,6 @@ process BEDTOOLS_MERGE_COV {
         -i - \\
         $args \\
         > ${prefix}.cov
-    rm ${prefix}_tmp.cov
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedtools: \$(bedtools --version | sed -e "s/bedtools v//g")
