@@ -20,7 +20,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
     ch_versions = Channel.empty()
 
     if (params.subset_intervals_channel) {
-        ch_bam = bam.randomSample(params.subset_intervals_channel)
+        ch_bam = bam.randomSample(params.subset_intervals_channel, 234)
     } else {
         ch_bam = bam
     }
