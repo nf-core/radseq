@@ -39,7 +39,7 @@ process BEDTOOLS_MAKEWINDOWS {
     
     bedtools \\
         makewindows \\
-        ${arg_input} \\
+        ${prefix}_cov.high.stats \\
         -w \$MaxLen2 -s \$ML1 \\
         $args \\
         > ${prefix}.tab
