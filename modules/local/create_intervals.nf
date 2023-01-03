@@ -8,8 +8,7 @@ process CREATE_INTERVALS {
         'quay.io/biocontainers/perl:5.26.2' }"
 
     input:
-    tuple val(meta), path(cov)
-    tuple val(meta2), path(low_cov)
+    tuple val(meta), path(cov), path(intersect), path(low_cov)
     val (lengths)
 
     output:
@@ -22,7 +21,7 @@ process CREATE_INTERVALS {
     def prefix = task.ext.prefix ?: "$meta.id"
     if (params.method == 'denovo') {
         """
-        cat ${cov} ${low_cov} > ${prefix}_cov.split.stats
+        cat ${intersect} ${low_cov} > ${prefix}_cov.split.stats
         echo "${lengths.join("\n")}" > ${prefix}_lengths.txt
         MaxLen=\$(awk '{ print length() | "sort -rn" }' ${prefix}_lengths.txt| head -1)
         MaxLen2=\$(( \$MaxLen / 2 ))
@@ -47,7 +46,7 @@ process CREATE_INTERVALS {
         """
     } else {
         """
-        cat ${cov} ${low_cov} > ${prefix}_cov.split.stats
+        cat ${intersect} ${low_cov} > ${prefix}_cov.split.stats
         echo "${lengths.join("\n")}" > ${prefix}_lengths.txt
         MaxLen=\$(awk '{ print length() | "sort -rn" }' ${prefix}_lengths.txt| head -1)
         MaxLen2=\$(( \$MaxLen / 2 ))

@@ -54,15 +54,15 @@ workflow BAM_INTERVALS_BEDTOOLS {
     ch_versions = ch_versions.mix (BEDTOOLS_MERGE_COV.out.versions)
 
     // split into 2 files: high and low then make intervals across the genome based
-    ch_tab = BEDTOOLS_MAKEWINDOWS (ch_mcov, true, read_lengths, params.splitByReadCoverage).tab
+    ch_split_high_coverage = BEDTOOLS_MAKEWINDOWS (ch_mcov, true, read_lengths, params.splitByReadCoverage).tab
     ch_versions = ch_versions.mix (BEDTOOLS_MAKEWINDOWS.out.versions)
 
-    ch_bedtointersect = ch_mcov.join(ch_tab)
-
-    ch_intersect = BEDTOOLS_INTERSECT (ch_bedtointersect, 'bed').intersect
+    ch_intersect = BEDTOOLS_INTERSECT (ch_mcov.join(ch_split_high_coverage), 'bed').intersect
     ch_versions = ch_versions.mix (BEDTOOLS_INTERSECT.out.versions)
 
-    ch_intervals = CREATE_INTERVALS (ch_intersect, BEDTOOLS_MAKEWINDOWS.out.low_cov, read_lengths).intervals.transpose()
+    ch_createintervals = ch_mcov.join(ch_intersect).join(BEDTOOLS_MAKEWINDOWS.out.low_cov)
+
+    ch_intervals = CREATE_INTERVALS (ch_createintervals, read_lengths).intervals.transpose()
     //TODO: add channel versions
 
     //update the meta
