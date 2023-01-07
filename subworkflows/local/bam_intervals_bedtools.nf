@@ -12,18 +12,16 @@ workflow BAM_INTERVALS_BEDTOOLS {
 
     take:
     bam
-    faidx // TODO: add [meta, fasta, fai]
+    faidx
     read_lengths
     coverage_threshold
 
     main:
     ch_versions = Channel.empty()
 
-    if (params.subset_intervals_channel) {
-        ch_bam = bam.randomSample(params.subset_intervals_channel, 234)
-    } else {
-        ch_bam = bam
-    }
+    // Reduce the number of bam files to be passed in the subworkflow via parameters
+        // Purpose: Memory constraints for large sample sizes at BEDTOOLS_MERGE_COV
+    ch_bam = params.subset_intervals_channel ? bam.randomSample(params.subset_intervals_channel, 234) : bam
 
     ch_bed = BEDTOOLS_BAMTOBED (ch_bam, faidx.first()).bed
     ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
@@ -34,13 +32,14 @@ workflow BAM_INTERVALS_BEDTOOLS {
         }
         .groupTuple()
 
+    //TODO #1:Setup ch_versions for module
     ch_mbed = BEDOPS_MERGE_BED (ch_bed_to_merge).bed
     //ch_versions = ch_versions.mix(BEDOPS_MERGE_BED.out.versions)
 
     ch_sorted_mbed = BEDTOOLS_SORT (ch_mbed, 'bed', faidx.first()).sorted
     ch_versions = ch_versions.mix(BEDTOOLS_SORT.out.versions)
 
-    // switch the order 
+    // Calculate read coverage across indv. samples 
     cov = BEDTOOLS_COVERAGE (ch_bed.combine(ch_sorted_mbed.map{it[1]}).map{meta,bed,mbed -> [meta,mbed,bed]}, faidx.first()).cov
     ch_versions = ch_versions.mix (BEDTOOLS_COVERAGE.out.versions)
 
@@ -50,6 +49,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
         }
         .groupTuple()
 
+    // combines overlapping features into a single report
     ch_mcov = BEDTOOLS_MERGE_COV (ch_cov_to_merge, faidx.first()).cov
     ch_versions = ch_versions.mix (BEDTOOLS_MERGE_COV.out.versions)
 
@@ -57,16 +57,15 @@ workflow BAM_INTERVALS_BEDTOOLS {
     ch_split_high_coverage = BEDTOOLS_MAKEWINDOWS (ch_mcov, true, read_lengths, params.splitByReadCoverage).tab
     ch_versions = ch_versions.mix (BEDTOOLS_MAKEWINDOWS.out.versions)
 
+    // Writes overlapping regions into new bed file
     ch_intersect = BEDTOOLS_INTERSECT (ch_mcov.join(ch_split_high_coverage), 'bed').intersect
     ch_versions = ch_versions.mix (BEDTOOLS_INTERSECT.out.versions)
 
     ch_createintervals = ch_mcov.join(ch_intersect).join(BEDTOOLS_MAKEWINDOWS.out.low_cov)
 
+    //TODO #2: Convert into Groovy function in nf-core-radseq/lib/WorkflowRadseq.groovy
     ch_intervals = CREATE_INTERVALS (ch_createintervals, read_lengths).intervals.transpose()
     //TODO: add channel versions
-
-    //update the meta
-
     emit:
     intervals = ch_intervals
 
