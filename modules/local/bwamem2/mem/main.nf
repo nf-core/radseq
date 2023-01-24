@@ -1,11 +1,11 @@
-process BWA_MEM {
+process BWAMEM2_MEM {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_high'
 
-    conda (params.enable_conda ? "bioconda::bwa=0.7.17 bioconda::samtools=1.15.1" : null)
+    conda (params.enable_conda ? "bioconda::bwa-mem2=2.2.1 bioconda::samtools=1.16.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-fe8faa35dbf6dc65a0f7f5d4ea12e31a79f73e40:8110a70be2bfe7f75a2ea7f2a89cda4cc7732095-0' :
-        'quay.io/biocontainers/mulled-v2-fe8faa35dbf6dc65a0f7f5d4ea12e31a79f73e40:8110a70be2bfe7f75a2ea7f2a89cda4cc7732095-0' }"
+        'https://depot.galaxyproject.org/singularity/mulled-v2-e5d375990341c5aef3c9aff74f96f66f65375ef6:2cdf6bf1e92acbeb9b2834b1c58754167173a410-0' :
+        'quay.io/biocontainers/mulled-v2-e5d375990341c5aef3c9aff74f96f66f65375ef6:2cdf6bf1e92acbeb9b2834b1c58754167173a410-0' }"
 
     input:
     tuple val(meta), path(reads)
@@ -26,10 +26,9 @@ process BWA_MEM {
     def args2 =  task.ext.args2     ?: ''
     def args3 =  task.ext.args3     ?: ''
     def prefix = task.ext.prefix    ?: "${meta.id}"
-    def samtools_command = sort_bam ? 'sort' : 'view'
-    if (sequence_type == 'PE' && params.method == 'denovo') {
+    if (sequence_type == 'PE' && params.method == 'denovo') {  
         """
-        INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
+        INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
         
         echo "${lengths.join("\n")}" > lengths.txt
         MLEN=\$(awk '{ print length() | "sort -rn" }' lengths.txt | head -1)
@@ -37,8 +36,9 @@ process BWA_MEM {
         INSERTH=\$(( \$INSERT + 100 ))
         INSERTL=\$(( \$INSERT - 100 ))
         SD=\$(( \$INSERT / 5 ))
-
-        bwa mem \\
+        
+        bwa-mem2 \\
+            mem \\
             $args \\
             -I \$INSERT,\$SD,\$INSERTH,\$INSERTL \\
             -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
@@ -47,18 +47,18 @@ process BWA_MEM {
             $reads \\
             | samtools view $args2 \\
             | samtools sort $args3 --threads $task.cpus -o ${prefix}.bam -
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            bwa: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-            samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-        END_VERSIONS
+        
+cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+    bwamem2: \$(echo \$(bwa-mem2 version 2>&1) | sed 's/.* //')
+    samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+END_VERSIONS
         """
     } else {
         """
-        INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
-
-        bwa mem \\
+        INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
+        bwa-mem2 \\
+            mem \\
             $args \\
             -R "@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:Illumina" \\
             -t $task.cpus \\
@@ -67,11 +67,21 @@ process BWA_MEM {
             | samtools view $args2 \\
             | samtools sort $args3 --threads $task.cpus -o ${prefix}.bam -
 
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            bwa: \$(echo \$(bwa 2>&1) | sed 's/^.*Version: //; s/Contact:.*\$//')
-            samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
-        END_VERSIONS
-        """
+cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+    bwamem2: \$(echo \$(bwa-mem2 version 2>&1) | sed 's/.* //')
+    samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+END_VERSIONS
+        """        
     }
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}.bam
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        bwamem2: \$(echo \$(bwa-mem2 version 2>&1) | sed 's/.* //')
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+    END_VERSIONS
+    """
 }

@@ -3,10 +3,10 @@ process COMBINE_UNIQUE_READS {
     label 'process_medium'
 
     // get a can't find conda dir. ? Check you have anaconda3 installed
-    conda (params.enable_conda ? 'seqtk bioconda::fastp=0.23.2' : null)
+    conda (params.enable_conda ? 'bioconda::perl-sys-info-driver-linux=0.7905' : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-b6fc09bed47d0dc4d8384ce9e04af5806f2cc91b:305092c6f8420acd17377d2cc8b96e1c3ccb7d26-0' :
-        'quay.io/biocontainers/mulled-v2-b6fc09bed47d0dc4d8384ce9e04af5806f2cc91b:305092c6f8420acd17377d2cc8b96e1c3ccb7d26-0' }"
+        'https://depot.galaxyproject.org/singularity/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' :
+        'quay.io/upennlibraries/perl_apache' }"
 
     when:
     task.ext.when == null || task.ext.when
@@ -19,7 +19,9 @@ process COMBINE_UNIQUE_READS {
 
     output:
     tuple val (meta), path ('*_uniq.full.fasta'), emit: uniq_reads
-    //tuple val (meta), path ('totaluniqseq'), emit: totaluniqseq
+    tuple val (meta), path ('totaluniqseq')     , emit: totaluniqseq
+    
+    path 'versions.yml'                         , emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -50,6 +52,11 @@ process COMBINE_UNIQUE_READS {
         sort -k1 -r -n -S 2G uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs | \\
         cut -f2 > totaluniqseq
         awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > ${prefix}_uniq.full.fasta
+        
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+        END_VERSIONS
         """
     } else {
         """
@@ -63,6 +70,12 @@ process COMBINE_UNIQUE_READS {
         cut -f2 > totaluniqseq 
         
         awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > ${prefix}_uniq.full.fasta
+        
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+            perl: \$(perl --version | sed -n -E '/^This is/ s/.*\\(v([[:digit:].]+)\\).*/\\1/p')
+        END_VERSIONS
         """
     }
 }

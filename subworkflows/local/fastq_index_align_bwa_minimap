@@ -3,7 +3,9 @@
 //
 
 include { BWA_INDEX                            } from '../../modules/nf-core/bwa/index/main.nf'
-include { BWA_MEM                              } from '../../modules/nf-core/bwa/mem/main.nf'
+include { BWA_MEM                              } from '../../modules/local/bwa/mem/main.nf'
+include { BWAMEM2_INDEX                        } from '../../modules/nf-core/bwamem2/index/main.nf'
+include { BWAMEM2_MEM                          } from '../../modules/local/bwamem2/mem/main.nf'
 include { MINIMAP2_INDEX                       } from '../../modules/nf-core/minimap2/index/main.nf'
 include { MINIMAP2_ALIGN                       } from '../../modules/nf-core/minimap2/align/main.nf'
 include { UMITOOLS_DEDUP                       } from '../../modules/nf-core/umitools/dedup/main.nf'
@@ -27,7 +29,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
 
     switch ( params.aligner ) {
 
-        case 'bwa': 
+        case 'bwamem': 
 
             BWA_INDEX (fasta)
             ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
@@ -39,21 +41,21 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
         
         case 'minimap2':
 
-            //MINIMAP_INDEX ()
+            //MINIMAP_INDEX (fasta)
             //ch_versions = ch_versions.mix(MINIMAP_INDEX.out.versions)
 
-            bam = MINIMAP2_ALIGN (reads, fasta.first(), true, false, false).bam
-            ch_versions = ch_versions.mix(MINIMAP_ALIGN.out.versions)
+            bam = MINIMAP2_ALIGN (reads, fasta.map{it[1]}.first(), true, false, false).bam
+            ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
                 break
 
-        case 'bwa2':
+        case 'bwamem2':
 
-            BWA2_INDEX (fasta)
-            ch_versions = ch_versions.mix(BWA2_INDEX.out.versions)
+            BWAMEM2_INDEX (fasta)
+            ch_versions = ch_versions.mix(BWAMEM2_INDEX.out.versions)
 
             // add specific arguments 
-            bam = BWA2_MEM (reads, BWA2_INDEX.out.index.first(), sort_view, type).bam
-            ch_versions = ch_versions.mix(BWA2_MEM.out.versions)
+            bam = BWAMEM2_MEM (reads, BWAMEM2_INDEX.out.index.first(), true, sequence_type, read_lengths.collect()).bam
+            ch_versions = ch_versions.mix(BWAMEM2_MEM.out.versions)
                 break
     }
 

@@ -1,5 +1,5 @@
 process CDHIT_TO_RBDIV {
-    tag "meta.id"
+    tag "$meta.id"
     label 'process_medium'
     
     conda (params.enable_conda ? "bioconda::coreutils=8.25" : null)
@@ -13,8 +13,9 @@ process CDHIT_TO_RBDIV {
     val (type)
 
     output:
-    tuple val(meta), path('*.rclstr'), emit: rbcluster
+    tuple val(meta), path('*.rclstr')                       , emit: rbcluster
     tuple val (meta), path ('*.contig.cluster.totaluniqseq'), emit: clstr_totaluniqseq
+    path 'versions.yml'                                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -30,18 +31,23 @@ process CDHIT_TO_RBDIV {
         paste ${prefix}.sort.contig.cluster.ids ${totaluniqseq} > ${prefix}.contig.cluster.totaluniqseq
 
         # cd-hit TO rainbow cluster format
-        sort -k2,2 -g ${prefix}.contig.cluster.totaluniqseq -S 2G | \\
-        sed -e 's/NNNNNNNNNN/	/g' > ${prefix}.rclstr    
+        sort -k2,2 -g ${prefix}.contig.cluster.totaluniqseq | \\
+        sed -e 's/NNNNNNNNNN/	/g' > ${prefix}.rclstr
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+            GNU: \$(sort --version | awk 'NR==1{print \$4}')
+        END_VERSIONS
         """
     } else {
         """
         awk '{if (\$1 ~ /Cl/) clus = clus + 1; else  print \$3 "\\t" clus}' ${clstr} | \\
         sed -e 's/[>dDocent_Contig_,...]//g' | \\
-        sort -g -k1 -S 2G > ${prefix}.sort.contig.cluster.ids
+        sort -g -k1 > ${prefix}.sort.contig.cluster.ids
 		
-        paste sort.contig.cluster.ids <(awk '!/>/' ${totaluniqseq}) > ${prefix}.contig.cluster.Funiq
+        paste ${prefix}.sort.contig.cluster.ids <(awk '!/>/' ${totaluniqseq}) > ${prefix}.contig.cluster.Funiq
 		
-        sed -e 's/NNNNNNNNNN/	/g' totaluniqseq | \\
+        sed -e 's/NNNNNNNNNN/   /g' ${totaluniqseq} | \\
         sort -k1 -S 2G | \\
         awk '{print \$0 "\\t" NR}'  > ${prefix}.totaluniqseq.CN
 		
@@ -49,7 +55,13 @@ process CDHIT_TO_RBDIV {
         
         # cd-hit TO rainbow cluster format
         sort -k2,2 -g ${prefix}.contig.cluster.totaluniqseq -S 2G | \\
-        sed -e 's/NNNNNNNNNN/	/g' > ${prefix}.rcluster
+        sed -e 's/NNNNNNNNNN/	/g' > ${prefix}..rclstr
+        
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+            GNU: \$(sort --version | awk 'NR==1{print \$4}')
+        END_VERSIONS
         """
     }
 }

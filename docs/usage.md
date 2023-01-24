@@ -6,51 +6,9 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+radseq is a workflow designed to detect variants from restriction site-associated DNA sequences (RAD-seq). If a reference genome is available this workflow can be used on almost any kind of NGS data set.
 
-## Samplesheet input
-
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
-
-```console
---input '[path to samplesheet file]'
-```
-
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
-
-```console
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
-```
-
-### Full samplesheet
-
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
-
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
-
-```console
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
-```
-
-| Column         | Description                                                                                                                                                                            |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-
-An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+radseq is designed to call variants from species with or without a reference genome and can deduplicate reads based on unique moleculor identifier (umi) barcodes.
 
 ## Running the pipeline
 
@@ -70,6 +28,38 @@ results         # Finished results (configurable, see below)
 .nextflow_log   # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
+
+## Samplesheet input
+
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use the parameter `--input` to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below.
+
+radseq does not handle duplicate samples in the input samplesheet. All samples must have a unique identifier.
+
+### Full samplesheet
+
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below. **Important** the pipeline will group together individuals based on shared characters up to the first number. Therefore it is important to start sample ID's with a shared character and start the unique identifier with a number.   
+
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. Files grouped together will have the prefix sample, like for example, the final vcf will be named sample.vcf.gz. 
+
+```console
+sample,fastq_1,fastq_2,umi_barcodes,pop
+sample1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,false,pop1
+sample2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,false,pop1
+sample3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,false,pop1
+sample4,AEG588A4_S4_L003_R1_001.fastq.gz,false,pop2
+sample5,AEG588A5_S5_L003_R1_001.fastq.gz,false,pop2
+sample6,AEG588A6_S6_L003_R1_001.fastq.gz,false,pop2
+```
+
+| Column         | Description                                                                                                                                                                            |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `umi_barcodes` | Boolean variable (true/false) describing describing the presence a of unique moleculor identifier (umi) in the sample. 
+| `pop`          | Designated population the sample belongs to.
+
+An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
 ### Updating the pipeline
 
@@ -246,3 +236,42 @@ We recommend adding the following line to your environment to limit this (typica
 ```console
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
+
+## How to handle UMIs
+
+radseq simultaneously processes UMI-reads and filters low quality reads using [fastp](https://github.com/OpenGene/fastp).
+
+In order to remove UMI tags you must provide additional information to `--umi_read_structure [structure]` in your parameters.
+
+This will enable deduplication of bam files prior to variant calling and the calculation of alignment statistics.
+
+## How to run in reference or denovo modes?
+
+To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case of the latter. 
+
+## Lost in parameter space?
+
+### Denovo parameters
+
+For psuedo-reference construction radseq follows dDocent [paper](https://peerj.com/articles/431/), [GitHub](https://github.com/jpuritz/dDocent)
+
+`--sequence_type` : An acronym describing the type of sequencing method used. Avaiable options include `SE`, `PE`, `RPE`, `OL`, `ROL`
+
+`--minReadDepth_WithinIndividual` : minimum number of reads within an individual to include in psuedo-reference construction
+
+`--minReadDepth_BetweenIndividual` : minimum number of reads across individuals to include in psuedo-reference construction
+
+### Alignment parameters
+
+You can adjust the aligner in the parameters `--aligner` : [`'bwa'`,`'bwa2'`], radseq currently supports bwa mem and bwa mem2.
+
+### What does the bam_intervals_bedtools.nf subworkflow do?
+
+This subworkflow creates intervals to be passed into FreeBayes for parallel execution on regions determined based on read coverage.
+
+The threshold `--splitByReadCoverage` determines the amount of read depth to split an interval into smaller, 1/2 read-length sized intervals with a default of `500000`. 
+
+**Warning** For large sample size analysis or large fastq files, it's recommended to randomly subset bam file input into subworkflow by passing `--subset_intervals_channel [integer]` into parameters.
+
+## Variant calling parameters
+

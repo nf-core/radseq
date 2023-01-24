@@ -27,7 +27,7 @@ process BEDOPS_MERGE_BED {
     > ${prefix}.bed
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bedops: \$(bedops --version | sed -n '/version:/p' | cut -d' ' -f 5)
+        bedops: \$(bedops --version | awk '/version:/{print \$2}')
     END_VERSIONS
     """
 }

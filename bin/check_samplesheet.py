@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-# TODO nf-core: Update the script to check the samplesheet
-# This script is based on the example at: https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
-
 import os
 import sys
 import errno
@@ -38,15 +35,13 @@ def print_error(error, context="Line", context_str=""):
     sys.exit(1)
 
 
-# TODO nf-core: Update the check_samplesheet function
 def check_samplesheet(file_in, file_out):
     """
     This function checks that the samplesheet follows the following structure:
 
-    sample,fastq_1,fastq_2
-    SAMPLE_PE,SAMPLE_PE_RUN1_1.fastq.gz,SAMPLE_PE_RUN1_2.fastq.gz
-    SAMPLE_PE,SAMPLE_PE_RUN2_1.fastq.gz,SAMPLE_PE_RUN2_2.fastq.gz
-    SAMPLE_SE,SAMPLE_SE_RUN1_1.fastq.gz,
+    sample,fastq_1,fastq_2,umi_barcodes
+    sample3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,false
+    sample4,AEG588A4_S4_L003_R1_001.fastq.gz,false
 
     For an example see:
     https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
@@ -56,8 +51,8 @@ def check_samplesheet(file_in, file_out):
     with open(file_in, "r") as fin:
 
         ## Check header
-        MIN_COLS = 4
-        # TODO nf-core: Update the column names for the input samplesheet
+        MIN_COLS = 3
+        # Update the column names for the input samplesheet
         HEADER = ["sample", "fastq_1", "fastq_2","umi_barcodes"]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
         if header[: len(HEADER)] != HEADER:

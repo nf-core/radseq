@@ -31,9 +31,10 @@ process BEDTOOLS_COVERAGE {
         -a $input_A \\
         -b $input_B \\
         > ${prefix}.cov
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools v//' ))
+        bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools v//')
     END_VERSIONS
     """
 }

@@ -24,11 +24,10 @@ process RAINBOW_MERGE {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def output_assembly = save_assembly ? '-a' : ''
     def args = task.ext.args ?: ''
-    // change default arguments based on data
     """
-    rainbow merge -i ${rbdiv} -o ${prefix}_rbmerge.out \
-    ${args} \
-    ${output_assembly} \
+    rainbow merge -i ${rbdiv} -o ${prefix}_rbmerge.out \\
+    ${args} \\
+    ${output_assembly} \\
     2> ${prefix}_rbmerge.log
 
     cat <<-END_VERSIONS > versions.yml

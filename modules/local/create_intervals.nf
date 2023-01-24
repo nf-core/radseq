@@ -13,6 +13,7 @@ process CREATE_INTERVALS {
 
     output:
     tuple val(meta), path('mapped.*.bed'), emit: intervals
+    path  "versions.yml"                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -40,8 +41,8 @@ process CREATE_INTERVALS {
             }'
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            BusyBox: \$(awk -Wversion | sed '1!d; s/.*Awk //; s/,.*//')
-            perl: \$()
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+            perl: \$(perl --version | sed -n -E '/^This is/ s/.*\\(v([[:digit:].]+)\\).*/\\1/p')
         END_VERSIONS
         """
     } else {
@@ -63,7 +64,11 @@ process CREATE_INTERVALS {
             else if (lc > tt && e < 1 ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1;e=1}
             else if (cov > cutoff && lc < tt ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=lc;e=0}
             }'
-            
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+            perl: \$(perl --version | sed -n -E '/^This is/ s/.*\\(v([[:digit:].]+)\\).*/\\1/p')
+        END_VERSIONS   
         """
     }
 }

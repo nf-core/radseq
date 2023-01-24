@@ -25,10 +25,10 @@ class WorkflowRadseq {
                 log.error "need to specify the sequencing method with e.g. '--sequence_type' or via a detectable config file"
                 System.exit(1)
             }
-            if (!params.minReadDepth_WithinIndividual || params.minReadDepth_withinIndividual == null) {
+            if (!params.minreaddepth_withinindividual || params.minreaddepth_withinindividual == null) {
                 log.warn("using default range of values for minReadDepth_withinIndividual")
             }
-            if (params.method == 'denovo' && !params.minReadDepth_BetweenIndividual || params.minReadDepth_withinIndividual == null) {
+            if (params.method == 'denovo' && !params.minreaddepth_betweenindividual || params.minreaddepth_betweenindividual == null) {
                 log.warn("using default range of values for minReadDepth_BetweenIndividual")
             }   
         }  
@@ -64,7 +64,7 @@ class WorkflowRadseq {
     //
     // Exit pipeline if incorrect --genome key provided
     //
-    /*private static void genomeExistsError(params, log) {
+    private static void genomeExistsError(params, log) {
         if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
             log.error "=============================================================================\n" +
                 "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" +
@@ -73,5 +73,5 @@ class WorkflowRadseq {
                 "==================================================================================="
             System.exit(1)
         }
-    }*/
+    }
 }

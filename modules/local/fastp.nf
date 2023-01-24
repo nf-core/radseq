@@ -54,7 +54,7 @@ process FASTP {
             fastp: \$(fastp --version 2>&1 | sed -e "s/fastp //g")
         END_VERSIONS
         """
-    } else if (denovo_construction) {
+    } else if (denovo_construction && meta.single_end) {
         """
         MaxLen="\$(awk '!/>/' ${uniq_full_fasta}  | \\
             awk '(NR==1||length<shortest){shortest=length} END {print shortest}')"
@@ -80,8 +80,39 @@ process FASTP {
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             fastp: \$(fastp --version 2>&1 | sed -e "s/fastp //g")
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
         END_VERSIONS
         """
+    } else if (denovo_construction && !meta.single_end) {
+        """
+        MaxLen="\$(awk '!/>/' ${uniq_full_fasta}  | \\
+            awk '(NR==1||length<shortest){shortest=length} END {print shortest}')"
+        
+        fastp \\
+            --in1 ${reads} \\
+            --out1 ${prefix}.fastp.fastq.gz \\
+            --thread ${task.cpus} \\
+            ${args} \\
+            --detect_adapter_for_pe \\
+            --disable_quality_filtering \\
+            --length_required \$MaxLen \\
+            &> fastp.log
+        
+        # Fastq back to Fasta
+        gunzip ${prefix}.fastp.fastq.gz
+        awk 'BEGIN{P=1}{if(P==1||P==2){gsub(/^[@]/,">");print}; if(P==4)P=0; P++}' ${prefix}.fastp.fastq | \\
+            paste - - | \\
+            sort -k1,1 -V | \\
+            tr "\\t" "\\n" > ${prefix}.uniq.fasta
+        
+        awk '!/>/' ${prefix}.uniq.fasta > ${prefix}.totaluniqseq
+        
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            fastp: \$(fastp --version 2>&1 | sed -e "s/fastp //g")
+            BusyBox: \$(busybox | sed -n -E 's/.*v([[:digit:].]+)\\s\\(.*/\\1/p')
+        END_VERSIONS
+        """    
     } else if (meta.single_end) {
         """
         [ ! -f  ${prefix}.fastq.gz ] && ln -sf ${reads} ${prefix}.fastq.gz
@@ -116,7 +147,6 @@ process FASTP {
             $fail_fastq \\
             $merge_fastq \\
             --thread $task.cpus \\
-            --detect_adapter_for_pe \\
             $args \\
             $umi_args \\
             2> ${prefix}.fastp.log
@@ -160,7 +190,6 @@ process FASTP {
             $fail_fastq \\
             $merge_fastq \\
             --thread $task.cpus \\
-            --detect_adapter_for_pe \\
             $args \\
             2> ${prefix}.fastp.log
         cat <<-END_VERSIONS > versions.yml

@@ -15,9 +15,9 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
     main:
     ch_versions = Channel.empty()
     
-    //TODO: add popmap support
-        // update meta with interval numbers
-    FREEBAYES (bam_bai_bed, intervals, fasta.first(), fai.first(), [], [], [])
+    popmap = params.popmap ? Channel.fromPath(params.popmap).first() : []
+
+    FREEBAYES (bam_bai_bed, intervals, fasta.first(), fai.first(), [], popmap, [])
     ch_versions = ch_versions.mix(FREEBAYES.out.versions)
 
     ch_vcfsort = BCFTOOLS_SORT (FREEBAYES.out.vcf).vcf
@@ -25,6 +25,7 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
 
     ch_tbi = TABIX_TABIX (BCFTOOLS_SORT.out.vcf).tbi
     ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
+    
     BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).map{meta,vcf,tbi->[[id:meta.id],vcf,tbi]}.groupTuple(by:0), true)
     ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 

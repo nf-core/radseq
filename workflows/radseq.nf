@@ -76,15 +76,15 @@ workflow RADSEQ {
     INPUT_CHECK (
         ch_input
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions.first())
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
-    // SUBWORKFLOW: REMOVE LOW QUALITY READS, TRIM UMI's, DEMULTIPLEX POOLED FILES
+    // SUBWORKFLOW: remove/trim low quality reads, trim umi's
     //
     PROCESS_RAD (
         INPUT_CHECK.out.reads
     )
-    //ch_versions = ch_versions.mix(PROCESS_RAD.out.versions)
+    ch_versions = ch_versions.mix(PROCESS_RAD.out.versions)
 
     // assign fasta channel based on method in config file
     switch ( params.method ) {
@@ -100,7 +100,7 @@ workflow RADSEQ {
                 INPUT_CHECK.out.reads, 
                 params.sequence_type // sequence type exe.: 'SE', 'PE', ''
             ).fasta
-            //ch_versions = ch_versions.mix(DENOVO.out.versions.first())
+            ch_versions = ch_versions.mix(DENOVO.out.versions)
             break
         // exit 1 (container shut down: application failure or invalid file) ends the process using signal 7
         // if something other than the above cases is stated stop the workflow 
@@ -115,9 +115,8 @@ workflow RADSEQ {
     ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
 
     //
-    // SUBWORKFLOW: generate indexes, align input files, dedup reads, index bam, calculate statistics
-    //      if denovo and paired then provide length_stats to bwa mem
-    
+    // SUBWORKFLOW: generate fasta indexes, align input files, dedup reads, index bam, calculate statistics
+    //      if denovo and paired then pass length_stats to bwa mem
     ch_bam_bai = ALIGN (
         PROCESS_RAD.out.trimmed_reads, 
         ch_reference, 
@@ -125,30 +124,18 @@ workflow RADSEQ {
         params.sequence_type, 
         PROCESS_RAD.out.read_lengths
         ).bam_bai
+    ch_versions = ch_versions.mix(ALIGN.out.versions)
 
-    /* Option to filter out poorly mapping individuals
-    aln = bam_stats.out.stats
-        .splitCsv(sep:'\t') // converts file into channel formating (each row). else prints file literal string
-        .map { // assign variable to column subsets and convert 2nd col. to class float
-            def key = it[0].toString().tokenize('.').get(0) // similar to cut -d
-            def mappingrate = it[1].toFloat()
-            [ key, mappingrate ]
-            }
-        .filter ({ key, mappingrate -> mappingrate >= .75}) // retain samples with a mapping greater than 75%
-        .join( id_aln_file ) // outputs [key, stat, bam, bai]
-        .map { it[2] } // retain only bam records (3rd column)
-    */
-    
     //
-    // SUBWORKFLOW: Get read coverage to calculate intervals off of for freeabyes multithreading
+    // SUBWORKFLOW: freebayes multithreading based on read coverage
     //
-
     ch_intervals = BAM_INTERVALS_BEDTOOLS (
         ch_bam_bai.map{meta, bam, bai -> [meta, bam]},
         ch_faidx.map{it[1]},
         PROCESS_RAD.out.read_lengths,
-        params.splitByReadCoverage
+        params.max_read_coverage_to_split
         ).intervals
+    ch_versions = ch_versions.mix(BAM_INTERVALS_BEDTOOLS.out.versions)
 
     ch_bam_bai_bed = ALIGN.out.mbam_bai
         .combine(ch_intervals.map{it[1]})
@@ -159,14 +146,16 @@ workflow RADSEQ {
             ],
             bam, bai, bed]
         }
-
+    //
+    // SUBWORKFLOW: freebayes parallel variant calling
+    //
     vcf = BAM_VARIANT_CALLING_FREEBAYES (
         ch_bam_bai_bed,
         true,
         ch_reference.map{it[1]},
         ch_faidx.map{it[1]}
     ).vcf
-
+    ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_FREEBAYES.out.versions)
     
     //
     // MODULE: Run FastQC
