@@ -25,6 +25,7 @@ process MINIMAP2_INDEX {
         -d ${fasta.baseName}.mmi \\
         $args \\
         $fasta
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         minimap2: \$(minimap2 --version 2>&1)

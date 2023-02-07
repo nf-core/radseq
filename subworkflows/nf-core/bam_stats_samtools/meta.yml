@@ -1,40 +1,39 @@
-name: "bam_dedup_stats_samtools_umitools"
-description: UMI-tools dedup, index BAM file and run samtools stats, flagstat and idxstats
+name: bam_stats_samtools
+description: Produces comprehensive statistics from SAM/BAM/CRAM file
 keywords:
-  - umi
-  - dedup
-  - index
+  - statistics
+  - counts
   - bam
   - sam
   - cram
 modules:
-  - umitools/dedup
-  - samtools/index
   - samtools/stats
   - samtools/idxstats
   - samtools/flagstat
 input:
-  - bam_bai:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - bam:
       type: file
       description: BAM/CRAM/SAM file
       pattern: "*.{bam,cram,sam}"
-  - get_dedup_stats:
-      type: boolean
-      description: |
-        Generate output stats when running "umi_tools dedup"
-output:
-  - bam:
-      type: file
-      description: Umi deduplicated BAM/CRAM/SAM file
-      pattern: "*.{bam,cram,sam}"
   - bai:
       type: file
-      description: Umi deduplicated BAM/CRAM/SAM samtools index
+      description: Index for BAM/CRAM/SAM file
       pattern: "*.{bai,crai,sai}"
-  - csi:
+  - fasta:
       type: file
-      description: CSI samtools index
-      pattern: "*.csi"
+      description: Reference genome fasta file
+      pattern: "*.{fasta,fa}"
+output:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
   - stats:
       type: file
       description: File containing samtools stats output
@@ -53,4 +52,3 @@ output:
       pattern: "versions.yml"
 authors:
   - "@drpatelh"
-  - "@KamilMaliszArdigen"

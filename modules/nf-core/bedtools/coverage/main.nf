@@ -2,17 +2,17 @@ process BEDTOOLS_COVERAGE {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::bedtools=2.30.0" : null)
+    conda "bioconda::bedtools=2.30.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bedtools:2.30.0--hc088bd4_0' :
-        'quay.io/biocontainers/bedtools:2.30.0--hc088bd4_0' }"
+        'https://depot.galaxyproject.org/singularity/bedtools:2.30.0--h468198e_3':
+        'quay.io/biocontainers/bedtools:2.30.0--h468198e_3' }"
 
     input:
     tuple val(meta), path(input_A), path(input_B)
     path genome_file
 
     output:
-    tuple val(meta), path("*.cov"), emit: cov
+    tuple val(meta), path("*.bed"), emit: bed
     path "versions.yml"           , emit: versions
 
     when:
@@ -27,14 +27,13 @@ process BEDTOOLS_COVERAGE {
         coverage \\
         $args \\
         $reference \\
-        -counts \\
         -a $input_A \\
         -b $input_B \\
-        > ${prefix}.cov
-    
+        > ${prefix}.bed
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools v//')
+        bedtools: \$(echo \$(bedtools --version 2>&1) | sed 's/^.*bedtools v//' ))
     END_VERSIONS
     """
 }

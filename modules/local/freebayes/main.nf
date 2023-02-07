@@ -41,7 +41,6 @@ process FREEBAYES {
         $args \\
         $bam | \\
     bgzip -c > ${prefix}${interval}.vcf.gz
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         freebayes: \$(echo \$(freebayes --version 2>&1) | sed 's/version:\s*v//g' )

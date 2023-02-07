@@ -4,7 +4,7 @@ include { BEDTOOLS_SORT                 } from '../../modules/nf-core/bedtools/s
 include { BEDTOOLS_COVERAGE             } from '../../modules/nf-core/bedtools/coverage/main.nf'
 include { BEDTOOLS_MERGE_COV            } from '../../modules/local/bedtools/merge/main.nf'
 include { CREATE_INTERVALS              } from '../../modules/local/create_intervals.nf'
-include { BEDTOOLS_MAKEWINDOWS          } from '../../modules/nf-core/bedtools/makewindows/main.nf'
+include { BEDTOOLS_MAKEWINDOWS          } from '../../modules/local/bedtools/makewindows/main.nf'
 include { BEDTOOLS_INTERSECT            } from '../../modules/nf-core/bedtools/intersect/main.nf'
 
 workflow BAM_INTERVALS_BEDTOOLS {
@@ -23,7 +23,7 @@ workflow BAM_INTERVALS_BEDTOOLS {
         // .randomSample(# to subset to, random seed) random seed is critical to -resume functionality
     ch_bam = params.subset_intervals_channel ? bam.randomSample(params.subset_intervals_channel, 234) : bam
 
-    ch_bed = BEDTOOLS_BAMTOBED (ch_bam, faidx.first()).bed
+    ch_bed = BEDTOOLS_BAMTOBED (ch_bam).bed
     ch_versions = ch_versions.mix (BEDTOOLS_BAMTOBED.out.versions)
 
     ch_bed_to_merge = ch_bed.map {
@@ -35,11 +35,11 @@ workflow BAM_INTERVALS_BEDTOOLS {
     ch_mbed = BEDOPS_MERGE_BED (ch_bed_to_merge).bed
     ch_versions = ch_versions.mix(BEDOPS_MERGE_BED.out.versions)
 
-    ch_sorted_mbed = BEDTOOLS_SORT (ch_mbed, 'bed', faidx.first()).sorted
+    ch_sorted_mbed = BEDTOOLS_SORT (ch_mbed, faidx.first()).sorted
     ch_versions = ch_versions.mix(BEDTOOLS_SORT.out.versions)
 
     // Calculate read coverage across indv. samples 
-    cov = BEDTOOLS_COVERAGE (ch_bed.combine(ch_sorted_mbed.map{it[1]}).map{meta,bed,mbed -> [meta,mbed,bed]}, faidx.first()).cov
+    cov = BEDTOOLS_COVERAGE (ch_bed.combine(ch_sorted_mbed.map{it[1]}).map{meta,bed,mbed -> [meta,mbed,bed]}, faidx.first()).bed
     ch_versions = ch_versions.mix (BEDTOOLS_COVERAGE.out.versions)
 
     ch_cov_to_merge = cov.map {

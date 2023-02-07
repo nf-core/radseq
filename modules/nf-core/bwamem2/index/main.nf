@@ -2,7 +2,7 @@ process BWAMEM2_INDEX {
     tag "$fasta"
     label 'process_single'
 
-    conda ( params.enable_conda ? "bioconda::bwa-mem2=2.2.1" : null ) 
+    conda "bioconda::bwa-mem2=2.2.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bwa-mem2:2.2.1--he513fc3_0' :
         'quay.io/biocontainers/bwa-mem2:2.2.1--he513fc3_0' }"
@@ -25,6 +25,7 @@ process BWAMEM2_INDEX {
         index \\
         $args \\
         $fasta -p bwamem2/${fasta}
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bwamem2: \$(echo \$(bwa-mem2 version 2>&1) | sed 's/.* //')
@@ -39,6 +40,7 @@ process BWAMEM2_INDEX {
     touch bwamem2/${fasta}.pac
     touch bwamem2/${fasta}.amb
     touch bwamem2/${fasta}.bwt.2bit.64
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bwamem2: \$(echo \$(bwa-mem2 version 2>&1) | sed 's/.* //')

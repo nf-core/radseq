@@ -2,7 +2,7 @@ process SAMTOOLS_MERGE {
     tag "$meta.id"
     label 'process_low'
 
-    conda (params.enable_conda ? "bioconda::samtools=1.16.1" : null)
+    conda "bioconda::samtools=1.16.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/samtools:1.16.1--h6899075_1' :
         'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
@@ -17,6 +17,7 @@ process SAMTOOLS_MERGE {
     tuple val(meta), path("${prefix}.cram"), optional:true, emit: cram
     tuple val(meta), path("*.csi")         , optional:true, emit: csi
     path  "versions.yml"                                  , emit: versions
+
 
     when:
     task.ext.when == null || task.ext.when

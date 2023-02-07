@@ -12,7 +12,7 @@ include { UMITOOLS_DEDUP                       } from '../../modules/nf-core/umi
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_UMI } from '../../modules/nf-core/samtools/index/main.nf'
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_BAM } from '../../modules/nf-core/samtools/index/main.nf'
 include { BAM_STATS_SAMTOOLS                   } from '../nf-core/bam_stats_samtools/main.nf'
-include { BAM_MERGE_INDEX_SAMTOOLS             } from '../nf-core/bam_merge_index_samtools/main.nf'
+include { BAM_MERGE_INDEX_SAMTOOLS             } from '../local/bam_merge_index_samtools'
 
 
 workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
@@ -57,6 +57,11 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             bam = BWAMEM2_MEM (reads, BWAMEM2_INDEX.out.index.first(), true, sequence_type, read_lengths.collect()).bam
             ch_versions = ch_versions.mix(BWAMEM2_MEM.out.versions)
                 break
+        
+        default:
+        
+        exit 1, "unsupported aligner: ${aligner} \n supported options:" + params.aligner_options
+    
     }
 
     // split up into 2 channels to decide input for deduplication

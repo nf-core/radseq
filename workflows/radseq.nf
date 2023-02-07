@@ -39,7 +39,6 @@ include { INPUT_CHECK                            } from '../subworkflows/local/i
 include { PROCESS_RAD                            } from '../subworkflows/local/fastp_processradtags'
 include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/cdhit_rainbow'
 include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/fastq_index_align_bwa_minimap'
-include { BAM_MERGE_INDEX_SAMTOOLS               } from '../subworkflows/nf-core/bam_merge_index_samtools/main.nf'
 include { BAM_INTERVALS_BEDTOOLS                 } from '../subworkflows/local/bam_intervals_bedtools'
 include { BAM_VARIANT_CALLING_FREEBAYES          } from '../subworkflows/local/bam_variant_calling_freebayes'
 
@@ -187,7 +186,10 @@ workflow RADSEQ {
     ch_multiqc_files = ch_multiqc_files.mix(ALIGN.out.idxstats.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
-        ch_multiqc_files.collect()
+        ch_multiqc_files.collect(),
+        [],
+        [],
+        []
     )
     multiqc_report = MULTIQC.out.report.toList()
     ch_versions    = ch_versions.mix(MULTIQC.out.versions)

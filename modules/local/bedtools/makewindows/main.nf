@@ -29,14 +29,11 @@ process BEDTOOLS_MAKEWINDOWS {
     """
     echo "${lengths.join("\n")}" > "${prefix}_lengths.txt"
     MaxLen=\$(awk '{ print length() | "sort -rn" }' "${prefix}_lengths.txt" | head -1)
-
     #split cov.stats file into high and low coverage intervals
 	awk '\$4 > ${coverage_threshold}' ${regions} > ${prefix}_cov.high.stats
 	awk '\$4 <= ${coverage_threshold}' ${regions} > ${prefix}_cov.low.stats
-
     MaxLen2=\$(("\$MaxLen" / 2))
     ML1=\$(("\$MaxLen2" + 1))
-
     bedtools \\
         makewindows \\
         -b ${prefix}_cov.high.stats \\
