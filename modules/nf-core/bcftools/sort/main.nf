@@ -20,10 +20,11 @@ process BCFTOOLS_SORT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def interval = meta.interval  ? '_' + meta.interval : ''
     """
     bcftools \\
         sort \\
-        --output ${prefix}.vcf.gz \\
+        --output ${prefix}${interval}.vcf.gz \\
         $args \\
         $vcf
 

@@ -93,7 +93,6 @@ process FASTP {
             --out1 ${prefix}.fastp.fastq.gz \\
             --thread ${task.cpus} \\
             ${args} \\
-            --detect_adapter_for_pe \\
             --disable_quality_filtering \\
             --length_required \$MaxLen \\
             &> fastp.log

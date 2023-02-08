@@ -39,14 +39,14 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
             ch_versions = ch_versions.mix(BWA_MEM.out.versions)
                 break
         
-        case 'minimap2':
+        /*case 'minimap2':
 
             //MINIMAP_INDEX (fasta)
             //ch_versions = ch_versions.mix(MINIMAP_INDEX.out.versions)
 
             bam = MINIMAP2_ALIGN (reads, fasta.map{it[1]}.first(), true, false, false).bam
             ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
-                break
+                break*/
 
         case 'bwamem2':
 

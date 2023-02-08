@@ -12,7 +12,7 @@ process BEDTOOLS_COVERAGE {
     path genome_file
 
     output:
-    tuple val(meta), path("*.bed"), emit: bed
+    tuple val(meta), path("*.cov"), emit: bed
     path "versions.yml"           , emit: versions
 
     when:
@@ -29,7 +29,7 @@ process BEDTOOLS_COVERAGE {
         $reference \\
         -a $input_A \\
         -b $input_B \\
-        > ${prefix}.bed
+        > ${prefix}.cov
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

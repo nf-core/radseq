@@ -32,7 +32,7 @@ process UMITOOLS_DEDUP {
     PYTHONHASHSEED=0 umi_tools \\
         dedup \\
         -I $bam \\
-        -S ${prefix}.bam \\
+        -S ${prefix}_dedup.bam \\
         $stats \\
         $paired \\
         $args

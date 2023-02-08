@@ -101,8 +101,6 @@ workflow RADSEQ {
             ).fasta
             ch_versions = ch_versions.mix(DENOVO.out.versions)
             break
-        // exit 1 (container shut down: application failure or invalid file) ends the process using signal 7
-        // if something other than the above cases is stated stop the workflow 
         default:
             exit 1, "unknown method: ${method} \n supported options:" + params.method_options
     }
