@@ -47,7 +47,8 @@
                     "bedtools/sort": {
                         "branch": "master",
                         "git_sha": "f1f473b21811b958d1317c4a97c56e16d3ee40f9",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/bedtools/sort/bedtools-sort.diff"
                     },
                     "bwa/index": {
                         "branch": "master",

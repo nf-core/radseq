@@ -19,7 +19,7 @@ process BEDTOOLS_MERGE_COV {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args = task.ext.args ? task.ext.args + ' -c 4 -o sum' : '-c 4 -o sum'    
     def prefix = task.ext.prefix ?: "${meta.id}"
     if ("$cov" == "${prefix}.cov") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """

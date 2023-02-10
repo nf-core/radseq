@@ -1,5 +1,4 @@
 process BEDTOOLS_COVERAGE {
-    tag "$meta.id"
     label 'process_medium'
 
     conda "bioconda::bedtools=2.30.0"
@@ -19,7 +18,7 @@ process BEDTOOLS_COVERAGE {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    def args = task.ext.args ? task.ext.args + ' -counts' : '-counts'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def reference = genome_file ? "-g ${genome_file} -sorted" : ""
     """

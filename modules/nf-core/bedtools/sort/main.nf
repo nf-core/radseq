@@ -12,7 +12,7 @@ process BEDTOOLS_SORT {
     path genome_file
 
     output:
-    tuple val(meta), path("*.${extension}"), emit: sorted
+    tuple val(meta), path("*_sorted.${extension}"), emit: sorted
     path  "versions.yml"                   , emit: versions
 
     when:
@@ -23,7 +23,7 @@ process BEDTOOLS_SORT {
     def prefix     = task.ext.prefix ?: "${meta.id}"
     def genome_cmd = genome_file     ?  "-g $genome_file" : ""
     extension      = task.ext.suffix ?: intervals.extension
-    if ("$intervals" == "${prefix}.${extension}") {
+    if ("$intervals" == "${prefix}_sorted.${extension}") {
         error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     }
     """
@@ -32,7 +32,7 @@ process BEDTOOLS_SORT {
         -i $intervals \\
         $genome_cmd \\
         $args \\
-        > ${prefix}.${extension}
+        > ${prefix}_sorted.${extension}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

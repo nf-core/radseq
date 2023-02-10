@@ -7,9 +7,6 @@ process RBMERGE2FASTA {
         'https://depot.galaxyproject.org/singularity/seqtk:1.3--h5bf99c6_3' :
         'quay.io/biocontainers/seqtk:1.3--h5bf99c6_3' }"
 
-    when:
-    task.ext.when == null || task.ext.when
-
     input:
     tuple val (meta), path (rbdiv)
     tuple val (meta), path (rbmerge)
@@ -17,6 +14,9 @@ process RBMERGE2FASTA {
     output:
     tuple val (meta), path ('*_rainbow.fasta'), emit: fasta
     path "versions.yml"                       , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

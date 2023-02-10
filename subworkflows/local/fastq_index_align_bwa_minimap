@@ -75,7 +75,7 @@ workflow FASTQ_INDEX_ALIGN_BWA_MINIMAP {
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX_UMI.out.versions)
 
     // query only reads that satisfied the above condition
-    umi_bam = UMITOOLS_DEDUP (bam_bai_to_umi, false).bam
+    umi_bam = UMITOOLS_DEDUP (bam_bai_to_umi, true).bam
     ch_versions = ch_versions.mix(UMITOOLS_DEDUP.out.versions)
 
     bai = SAMTOOLS_INDEX_BAM (bam_to_umi.no_umi.mix(umi_bam)).bai

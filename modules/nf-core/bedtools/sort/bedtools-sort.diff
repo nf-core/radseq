@@ -1,0 +1,14 @@
+Changes in module 'nf-core/bedtools/sort'
+--- modules/nf-core/bedtools/sort/main.nf
++++ modules/nf-core/bedtools/sort/main.nf
+@@ -32,7 +32,7 @@
+         -i $intervals \\
+         $genome_cmd \\
+         $args \\
+-        > ${prefix}.${extension}
++        > ${prefix}_sorted.${extension}
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+
+************************************************************

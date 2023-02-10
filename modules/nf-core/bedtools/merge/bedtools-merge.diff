@@ -1,7 +1,7 @@
 Changes in module 'nf-core/bedtools/merge'
 --- modules/nf-core/bedtools/merge/main.nf
 +++ modules/nf-core/bedtools/merge/main.nf
-@@ -1,17 +1,18 @@
+@@ -1,36 +1,38 @@
 -process BEDTOOLS_MERGE {
 +process BEDTOOLS_MERGE_COV {
      tag "$meta.id"
@@ -25,9 +25,11 @@ Changes in module 'nf-core/bedtools/merge'
      path  "versions.yml"          , emit: versions
  
      when:
-@@ -20,17 +21,18 @@
+     task.ext.when == null || task.ext.when
+ 
      script:
-     def args = task.ext.args ?: ''
+-    def args = task.ext.args ?: ''
++    def args = task.ext.args ? task.ext.args + ' -c 4 -o sum' : '-c 4 -o sum'    
      def prefix = task.ext.prefix ?: "${meta.id}"
 -    if ("$bed" == "${prefix}.bed") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
 +    if ("$cov" == "${prefix}.cov") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"

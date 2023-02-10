@@ -8,9 +8,6 @@ process COMBINE_UNIQUE_READS {
         'https://depot.galaxyproject.org/singularity/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' :
         'quay.io/upennlibraries/perl_apache' }"
 
-    when:
-    task.ext.when == null || task.ext.when
-
     input:
     tuple val (meta), path (reads) // loading all individual uniq sequence per collected
     val (type) // sequencing technology used. Changes how unique sequences are identified
@@ -20,8 +17,10 @@ process COMBINE_UNIQUE_READS {
     output:
     tuple val (meta), path ('*_uniq.full.fasta'), emit: uniq_reads
     tuple val (meta), path ('totaluniqseq')     , emit: totaluniqseq
-    
     path 'versions.yml'                         , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

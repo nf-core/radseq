@@ -7,9 +7,6 @@ process PREPARE_FORWARD_READS {
         'https://depot.galaxyproject.org/singularity/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' :
         'quay.io/biocontainers/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' }"
 
-    when:
-    task.ext.when == null || task.ext.when
-
     input:
     tuple val (meta), path (reads)
     val (type) // sequencing technology used. Changes how unique sequences are identified
@@ -17,6 +14,9 @@ process PREPARE_FORWARD_READS {
     output:
     tuple val (meta), path ('*.uniq.seqs'), emit: indv_uniq_seqs
     path 'versions.yml'                   , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
