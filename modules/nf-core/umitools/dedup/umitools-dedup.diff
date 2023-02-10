@@ -1,0 +1,14 @@
+Changes in module 'nf-core/umitools/dedup'
+--- modules/nf-core/umitools/dedup/main.nf
++++ modules/nf-core/umitools/dedup/main.nf
+@@ -32,7 +32,7 @@
+     PYTHONHASHSEED=0 umi_tools \\
+         dedup \\
+         -I $bam \\
+-        -S ${prefix}.bam \\
++        -S ${prefix}_dedup.bam \\
+         $stats \\
+         $paired \\
+         $args
+
+************************************************************

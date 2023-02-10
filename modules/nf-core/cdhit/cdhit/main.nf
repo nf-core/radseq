@@ -27,11 +27,12 @@ process CDHIT {
         """
         sed -e 's/NNNNNNNNNN/	/g' ${fasta} | cut -f1 > uniq.F.fasta
                 
-        cd-hit-est -i uniq.F.fasta \\
-        -o ${prefix} \\
-        -M ${task.memory.mega} \\
-        -T ${task.cpus} \\
-        ${args}
+        cd-hit-est \\
+            -i uniq.F.fasta \\
+            -o ${prefix} \\
+            -M ${task.memory.mega} \\
+            -T ${task.cpus} \\
+            ${args}
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

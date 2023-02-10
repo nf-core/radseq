@@ -1,0 +1,18 @@
+Changes in module 'nf-core/bcftools/sort'
+--- modules/nf-core/bcftools/sort/main.nf
++++ modules/nf-core/bcftools/sort/main.nf
+@@ -20,10 +20,11 @@
+     script:
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
++    def interval = meta.interval  ? '_' + meta.interval : ''
+     """
+     bcftools \\
+         sort \\
+-        --output ${prefix}.vcf.gz \\
++        --output ${prefix}${interval}.vcf.gz \\
+         $args \\
+         $vcf
+ 
+
+************************************************************

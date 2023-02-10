@@ -1,4 +1,4 @@
-include { FASTP             } from '../../modules/local/fastp.nf'
+include { FASTP             } from '../../modules/nf-core/fastp/main.nf'
 
 workflow PROCESS_RAD {
     take:

@@ -2,9 +2,9 @@ include { BEDTOOLS_BAMTOBED             } from '../../modules/nf-core/bedtools/b
 include { BEDOPS_MERGE_BED              } from '../../modules/local/bedops/merge/main.nf'
 include { BEDTOOLS_SORT                 } from '../../modules/nf-core/bedtools/sort/main.nf'
 include { BEDTOOLS_COVERAGE             } from '../../modules/nf-core/bedtools/coverage/main.nf'
-include { BEDTOOLS_MERGE_COV            } from '../../modules/local/bedtools/merge/main.nf'
+include { BEDTOOLS_MERGE_COV            } from '../../modules/nf-core/bedtools/merge/main.nf'
 include { CREATE_INTERVALS              } from '../../modules/local/create_intervals.nf'
-include { BEDTOOLS_MAKEWINDOWS          } from '../../modules/local/bedtools/makewindows/main.nf'
+include { BEDTOOLS_MAKEWINDOWS          } from '../../modules/nf-core/bedtools/makewindows/main.nf'
 include { BEDTOOLS_INTERSECT            } from '../../modules/nf-core/bedtools/intersect/main.nf'
 
 workflow BAM_INTERVALS_BEDTOOLS {

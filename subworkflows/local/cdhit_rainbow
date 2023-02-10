@@ -1,9 +1,9 @@
 include { PREPARE_FORWARD_READS        } from '../../modules/local/prepare_forward_reads.nf'
 include { COMBINE_UNIQUE_READS         } from '../../modules/local/combine_uniq_forward_reads.nf'
 include { SEQTK_SEQ                    } from '../../modules/nf-core/seqtk/seq/main.nf'
-include { FASTP as DENOVO_FASTP        } from '../../modules/local/fastp.nf'
-include { CDHIT                        } from '../../modules/local/cdhit.nf' // cd-hit
-include { CDHIT_TO_RBDIV             } from '../../modules/local/cdhit_to_rbdiv.nf'
+include { FASTP as DENOVO_FASTP        } from '../../modules/nf-core/fastp/main.nf'
+include { CDHIT                        } from '../../modules/nf-core/cdhit/cdhit/main.nf' // cd-hit
+include { CDHIT_TO_RBDIV               } from '../../modules/local/cdhit_to_rbdiv.nf'
 include { RAINBOW_DIV                  } from '../../modules/local/rainbow/div/rainbow_div.nf' // rainbow div
 include { RAINBOW_MERGE                } from '../../modules/local/rainbow/merge/rainbow_merge.nf' // rainbow merge
 include { RBMERGE2FASTA as WRITE_FASTA } from '../../modules/local/rbmerge2fasta.nf' // write fasta
