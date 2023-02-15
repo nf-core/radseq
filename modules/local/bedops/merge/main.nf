@@ -25,6 +25,7 @@ process BEDOPS_MERGE_BED {
     bedops --merge ${bed.collect().join(" ")} \\
     ${args} \\
     > ${prefix}.bed
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bedops: \$(bedops --version | awk '/version:/{print \$2}')

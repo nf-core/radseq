@@ -12,6 +12,7 @@ process RAINBOW_DIV {
 
     output:
     tuple val (meta), path ("*_rbdiv.out")         , emit: rbdiv
+    tuple val (meta), path ("*_rbdiv.log")         , emit: log
     path "versions.yml"                            , emit: versions
 
     when:
@@ -24,7 +25,8 @@ process RAINBOW_DIV {
     rainbow div \\
         -i ${cluster} \\
         -o ${prefix}_rbdiv.out \\
-        ${args}
+        ${args} \\
+        2> ${prefix}_rbdiv.log
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

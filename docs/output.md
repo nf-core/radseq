@@ -13,31 +13,31 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Preprocessing](#preprocessing)
     - [FastP](#fastp) - trim low-quality reads, umi-barcodes, adapters
 - [Denovo Reference Construction](#denovo-reference-construction)
-    - [Prepare Forward Reads](#prepare-forward-reads) - combine forward and reverse sequences separated by 'NNNNNNNNNN'
-    - [Combine Uniqe Reads](#combine-uniq-reads) - retain reads present n number of times between and across individuals
+    - [Prepare forward reads](#prepare-forward-reads) - combine forward and reverse sequences separated by 'NNNNNNNNNN'
+    - [Combine uniqe reads](#combine-uniq-reads) - retain reads present n number of times between and across individuals
     - [Seqtk](#seqtk-seq) - write dummy fasta file
-    - [Denovo Fastp](#denovo-fastp) - trim adapters
-    - [CDHIT-est](#cdhit-est) - cluster similar sequences
-    - [cdhit_to_rbdiv](#cdhit-to-rbdiv) - convert cdhit file output into rainbow div input file format
+    - [Denovo FastP](#denovo-fastp) - trim adapters
+    - [CD-HIT-EST](#cdhit-est) - cluster similar sequences
+    - [CD-HIT-EST to Rainbow div](#cdhit-to-rbdiv) - convert cdhit file output into rainbow div input file format
     - [Rainbow div](#rainbow-div) - distiguish sequence errors from heterozygote or variants between repetitive sequences
     - [Rainbow merge](#rainbow-merge) - merge potential heterozygous clusters
-    - [write_fasta](#write_fasta) - convert rainbow merge file output into fasta format
+    - [Write Fasta](#write_fasta) - convert rainbow merge file output into fasta format
 - [Alignment](#alignment)
     - [SAMtools](#samtools) - Sort, index and obtain alignment statistics
     - [BWA](#bwa) - short read aligner
-    - [BWA-mem2](#bwa-mem2) - a faster short read aligner 
+    - [BWAMEM2](#bwa-mem2) - a faster short read aligner 
     - [UMI-tools dedup](#umi-tools-dedup) - UMI-based deduplication
 - [Freebayes Intervals](#freebayes-intervals)
-    - [bedtools bamtobed](#bedtools-bamtobed): converts bam file into bed datastructure
-    - [bedops merge](#bedops-merge): merge indvidual bed files into a single bed file
-    - [bedtools sort](#bedtools-sort): sorts bed files
-    - [bedtools coverage](#bedtools-coverage): counts read depth
-    - [bedtools merge](#bedtools-merge): merges indv bed files and takes sum the read depths
-    - [bedtools makewindows](#bedtools-makewindows): split regions with coverage above `--max_read_coverage_to_split` to half read length
-    - [bedtools intersect](#bedtools-intersect): removes any overlapping regions between new bed file from `bedtools makewindows` and from `bedtools merge`
-    - [create intervals](#create-intervals): write regions for input to `freebayes`
+    - [BEDtools bamtobed](#bedtools-bamtobed): converts bam file into bed datastructure
+    - [BEDOPS merge](#bedops-merge): merge indvidual bed files into a single bed file
+    - [BEDtools sort](#bedtools-sort): sorts bed files
+    - [BEDtools coverage](#bedtools-coverage): counts read depth
+    - [BEDtools merge](#bedtools-merge): merges indv bed files and takes sum the read depths
+    - [BEDtools makewindows](#bedtools-makewindows): split regions with coverage above `--max_read_coverage_to_split` to half read length
+    - [BEDtools intersect](#bedtools-intersect): removes any overlapping regions between split reads and all merged reads
+    - [Create intervals](#create-intervals): write regions for input to `freebayes`
 - [Variant Calling](#variant-calling)
-    - [Freebayes](#freebayes) - a bayesian genotyper tool
+    - [FreeBayes](#freebayes) - a bayesian genotyper tool
 - [Quality Control and Preprocessing](#qc-and-reporting)
     - [FastQC](#fastqc) - Raw read QC
     - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
@@ -78,7 +78,7 @@ The default directory structure is as follows
     └── variant_calling
 ```
 
-# Preprocessing
+# Pre-Processing
 
 Radseq pre-processes reads prior to the alignment step.
 
@@ -89,7 +89,7 @@ Radseq pre-processes reads prior to the alignment step.
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/fastp/`
+* `{outdir}/fastp/unique_sequences`
     * `*_fastp.html`: Fastp report containing quality metrics.
     * `*_fastp.log`: Log output containing statistics
     * `*.fq.gz`: trimmed fq files
@@ -98,20 +98,24 @@ Radseq pre-processes reads prior to the alignment step.
 
 # Denovo Reference Construction
 
-Radseq supports the construction of psuedoreference using a conglomerate of open source tools. By default the resulting fasta file is only output to enable the output of intermediate files into `{outdir}/denovo/reference/` use `--denovo_intermediate_files=true`. 
+Radseq supports the construction of psuedoreference using a conglomerate of open source tools. By default the resulting fasta file is only outputed to enable the printing of intermediate files into `{outdir}/denovo/reference/` use `--denovo_intermediate_files=true`. 
 
 ### Prepare forward reads
+
+Prior to clustering forward and reverse reads are joined into one sequence and seperated with a `NNNNNNNNNN`. Reads are reduced based on number of presences within an individual and among all individuals and combined into one file. 
 
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/denovo/reference`
-    * `*.uniq.seqs`: all unique sequences
+* `{outdir}/denovo/reference/unique_sequences`
+    * `*.uniq.seqs`: all unique sequences in an individual 
+    * `*_uniq.full.fasta`: all sequences
 
 </details>
 
 ### Seqtk seq
 
+[Seqtk](https://github.com/lh3/seqtk) is a tool for processing FASTA or FASTQ file formats.
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -121,6 +125,8 @@ Radseq supports the construction of psuedoreference using a conglomerate of open
 </details>
 
 ### Denovo FastP
+
+Denovo Fastp uses [FastP](https://github.com/OpenGene/fastp) as a tool to trim any unwanted sequences prior to clustering like adapter content.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -133,6 +139,8 @@ Radseq supports the construction of psuedoreference using a conglomerate of open
 
 ### Cdhit est
 
+[CD-HIT](https://sites.google.com/view/cd-hit) is used for clustering and comparing nucleotide sequences. 
+
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -142,13 +150,15 @@ Radseq supports the construction of psuedoreference using a conglomerate of open
 
 </details>
 
-### Cdhit to rbdiv
+### CD-HIT to Rainbow div
+
+This module converts `CD-HIT` output into input for `Rainbow div`.
 
 <details markdown="1">
 <summary>Output files</summary>
 
 * `{outdir}/denovo/reference/cdhit_to_rbdiv`
-    * `*.sort.contig.cluster.ids`: file used for conversion of `cd-hit` to `Rainbow` input
+    * `*.sort.contig.cluster.ids`: intermediate file used for conversion of `cd-hit` to `Rainbow` input and facilitates reproducibility
     * `*.contig.cluster.totaluniqseq`: used during assembly
     * `*.rcluster`: input for `Rainbow`
 
@@ -156,39 +166,40 @@ Radseq supports the construction of psuedoreference using a conglomerate of open
 
 ### Rainbow div
 
+[Rainbow div](https://github.com/ChongLab/rainbow) is a tool used to divide heterozygote calls into putative haplotypes based on minimum thresholds passed as arguments. 
+
 <details markdown="1">
 <summary>Output files</summary>
 
 * `{outdir}/denovo/reference/rainbow_div`
     * `*_rbdiv.out`: rainbow div output file
-    * `*.log`: log file
+    * `*_rbdiv.log`: log file
 
 </details>
 
-
 ### Rainbow merge
+
+[Rainbow merge](https://github.com/ChongLab/rainbow) is a tool used to merge reads from `Rainbow div` and assemble into contigs based on minimum and maximum thresholds that are passed as arguments. 
 
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/denovo/reference/rainbow_div`
+* `{outdir}/denovo/reference/rainbow_merge`
     * `*_rainbow.fasta`: final fasta file used in subsequent processes
 
 </details>
 
 ### Write fasta
 
+This module converts `Rainbow merge` into fasta format. These files are outputed by default to: 
+
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/denovo/reference/rainbow_div`
-    * `*_rbmerge.out`: rainbow merge output file
-    * `*_rbmerge.log`: log file
-
+* `{outdir}/denovo/reference/write_fasta`
+    * `*_rainbow.fasta`: denovo fasta file containing contig sequences
 
 </details>
-
-# Freebayes Intervals
 
 # Alignment
 
@@ -200,22 +211,169 @@ enable the saving of reference indices with `--save_reference_indices true` gene
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/denovo/reference/index`
+* `{outdir}/{method}/reference/{samtools}/index/`
     * `*.fai`: samtools fai index
 
 </details>
 
 ### bwa index
 
+**Not Working**
+
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/denovo/reference/index`
-    * `*_rbmerge.out`: rainbow merge output file
+* `{outdir}/{method}/reference/{aligner}/index/`
+    * `*`: rainbow merge output file
 
 </details>
 
+## Aligners
+
+To enable the output of bam files use `--save_bam_files=true`. Output of bam files from different alignment methods follow the same output structure. 
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/reference/{aligner}/bam/`
+    * `*.bam`: sorted bam files
+
+</details>
+
+### BWA
+
+[BWA](https://github.com/lh3/bwa) is a tool for mapping sequencies with low divergence against a reference genome. Aligned reads are then potentially filtered and coordinate-sorted using [samtools](https://github.com/samtools/samtools).
+
+### BWA-mem2
+
+[BWA-mem2](https://github.com/bwa-mem2/bwa-mem2)  is a tool next version of `bwa-mem` for mapping sequencies with low divergence against a reference genome with increased processing speed (~1.3-3.1x). Aligned reads are then potentially filtered and coordinate-sorted using [samtools](https://github.com/samtools/samtools).
+
+### UMI-tools dedup
+
+[UMI-tools dedup](https://umi-tools.readthedocs.io/en/latest/reference/dedup.html) is a tool for deduplicating reads and ensuring only a single representative read is retained in the bam file. Files are outputed using `--save_bam_files=true` as a result of many individual bed files being passed through.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/umitools_dedup`
+    * `*.bam`: bam file
+    * `*.tsv`: output statistics file
+
+</details>
+
+# FreeBayes Interval Construction
+
+radseq supports multithreading of FreeBayes through the `bam_intervals_bedtools.nf` subworkflow that uses a collection of [BEDtools](https://bedtools.readthedocs.io/en/latest/index.html) software and [BEDOPS merge](https://bedops.readthedocs.io/en/latest/content/reference/set-operations/bedops.html#merge-m-merge).
+
+To enable the saving of files generated for interval construction in the output-folder set `--save_bed_intervals=true`.
+
+For large datasets, it may be useful to randomly subsample the number of individuals going into `bam_intervals_bedtools.nf` subworkflow using `--subset_intervals_channel=<integer>`. Particularly at the `BEDtools merge` module the memory footprint can be large. 
+
+### BEDtools bamtobed
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_bamtobed`
+    * `*.bed`: individual bed file
+
+</details>
+
+### BEDOPS merge
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedops_merge`
+    * `*.bed`: merged single bed file
+
+</details>
+
+### BEDtools sort
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_sort`
+    * `*.bed`: single sorted bed file
+
+</details>
+
+### BEDtools coverage
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_coverage`
+    * `*.cov`: Individual bed files with fourth column describing number of reads in a particular region
+
+</details>
+
+### BEDtools merge cov
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_merge`
+    * `*.cov`: single bed file with fourth column describing number of reads in a particular region
+
+</details>
+
+### BEDtools makewindows
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_makewindows`
+    * `*_cov.low.stats`: regions less than `max_read_coverage_to_split`
+    * `*_cov.high.stats`: regions equal to or greater than `--max_read_coverage_to_split`
+    * `*.tab`: regions from `*_cov.high.stats` split to half their read length
+
+</details>
+
+### BEDtools intersect
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_intersect`
+    * `*.bed`: Final single bed file to be subsequently split
+
+</details>
+
+### Create intervals
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/bedtools_intersect`
+    * `mapped.*.bed`: Split bed files passed into FreeBayes for multithreading
+
+</details>
+
+
 # Variant Calling
+
+### FreeBayes
+
+[FreeBayes](https://github.com/freebayes/freebayes) is a bayesian genetic variant detector capable of genotyping SNPs, indels, MNPs, and complex events smaller than the length of short-read sequencing alignment. 
+
+By default radseq will output a single vcf joined from independent runs. To enable the outputting of VCF files based on regions passed to FreeBayes use `--save_freebayes_intervals=true`.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/variant_calling/`
+    * `*.vcf.gz`: Final VCF
+
+* `{outdir}/{method}/variant_calling/intervals`
+    * `*_*.vcf.gz`: unsorted VCF intervals
+    * `*_sort_*.vcf.gz`: sorted VCF intervals
+    * `*_sort_*.vcf.gz.tbi`: sorted VCF intervals tabix index
+
+</details>
+
+# Quality Control and Visualization
 
 ### FastQC
 

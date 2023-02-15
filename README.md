@@ -29,17 +29,17 @@ On release, automated continuous integration tests run the pipeline on a full-si
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Adapter and quality trimming ([`fastp`](https://github.com/OpenGene/fastp))
+2. Adapter and quality trimming ([`FastP`](https://github.com/OpenGene/fastp))
 3. Choice of constructing psuedoreference (i) or using existing reference (ii)
     
-    i. [`cdhit`](https://sites.google.com/view/cd-hit?pli=1) -> [`rainbow`](https://github.com/ChongLab/rainbow)
+    i. [`CDHIT-est`](https://sites.google.com/view/cd-hit?pli=1) -> [`Rainbow`](https://github.com/ChongLab/rainbow)
     
     ii. **No Preprossesing**
 4. Choice of alignment software 
     
     i. [`BWA`](https://bio-bwa.sourceforge.net/bwa.shtml)
 
-    ii. [`BWAMEM2`](https://github.com/bwa-mem2/bwa-mem2)
+    ii. [`BWA-mem2`](https://github.com/bwa-mem2/bwa-mem2)
 
     iii. [`MINIMAP2`](https://github.com/lh3/minimap2)
 
@@ -49,7 +49,7 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 6. Construct intervals for freebayes ([`BEDtools`](https://bedtools.readthedocs.io/en/latest/))
 
-7. Variant calling ([`FREEBAYES`](https://github.com/freebayes/freebayes), [`BCFtools`](https://github.com/samtools/bcftools))
+7. Variant calling ([`FreeBayes`](https://github.com/freebayes/freebayes), [`BCFtools`](https://github.com/samtools/bcftools))
 
 5. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
