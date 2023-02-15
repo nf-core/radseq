@@ -89,9 +89,7 @@ Radseq pre-processes reads prior to the alignment step.
 <details markdown="1">
 <summary>Output files</summary>
 
-* `{outdir}/fastp/unique_sequences`
-    * `*_fastp.html`: Fastp report containing quality metrics.
-    * `*_fastp.log`: Log output containing statistics
+* `{outdir}/fastp/`
     * `*.fq.gz`: trimmed fq files
 
 </details>
@@ -374,6 +372,45 @@ By default radseq will output a single vcf joined from independent runs. To enab
 </details>
 
 # Quality Control and Visualization
+
+### bcftools stats
+
+[bcftools stats](https://samtools.github.io/bcftools/bcftools.html) is a tool for collecting statistics from a VCF or BCF file that can be interpretted by MultiQC.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/variant_calling/`
+    * `*_stats.txt`: 
+
+</details>
+
+### FastP
+
+[FastP](https://github.com/OpenGene/fastp) is a tool designed to be an all-in-one preprocessor for FastQ files. Statistics are passed to MultiQC.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/fastp/`
+    * `*_fastp.html`: Fastp report containing quality metrics
+    * `*_fastp.log`: Log output containing statistics
+
+</details>
+
+### samtools
+
+radseq supports generation of statistics from alignment files with [samtools stats](http://www.htslib.org/doc/samtools-stats.html), [samtools flagstat](http://www.htslib.org/doc/samtools-flagstat.html), [samtools idxstats](http://www.htslib.org/doc/samtools-idxstats.html).
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/samtools_stats`
+    * `*.flagstat`: 
+    * `*.stats`:
+    * `*.idxstats`:
+
+</details>
 
 ### FastQC
 
