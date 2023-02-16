@@ -1,6 +1,7 @@
 include { FREEBAYES                       } from '../../modules/nf-core/freebayes/main.nf'
 include { BCFTOOLS_SORT                   } from '../../modules/nf-core/bcftools/sort/main.nf'
-include { TABIX_TABIX; TABIX_TABIX as TTF } from '../../modules/nf-core/tabix/tabix/main.nf'
+include { TABIX_TABIX as TABIX_TABIX1     } from '../../modules/nf-core/tabix/tabix/main.nf'
+include { TABIX_TABIX as TABIX_TABIX2     } from '../../modules/nf-core/tabix/tabix/main.nf'
 include { BCFTOOLS_CONCAT                 } from '../../modules/nf-core/bcftools/concat/main.nf'
 include { BCFTOOLS_STATS                  } from '../../modules/nf-core/bcftools/stats/main.nf'
 
@@ -23,13 +24,13 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
     ch_vcfsort = BCFTOOLS_SORT (FREEBAYES.out.vcf).vcf
     ch_versions = ch_versions.mix(BCFTOOLS_SORT.out.versions)
 
-    ch_tbi = TABIX_TABIX (BCFTOOLS_SORT.out.vcf).tbi
-    ch_versions = ch_versions.mix(TABIX_TABIX.out.versions)
+    ch_tbi = TABIX_TABIX1 (BCFTOOLS_SORT.out.vcf).tbi
+    ch_versions = ch_versions.mix(TABIX_TABIX1.out.versions)
     
     BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).map{meta,vcf,tbi->[[id:meta.id],vcf,tbi]}.groupTuple(by:0))
     ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 
-    ch_final_tbi = TTF (BCFTOOLS_CONCAT.out.vcf).tbi
+    ch_final_tbi = TABIX_TABIX2 (BCFTOOLS_CONCAT.out.vcf).tbi
 
     BCFTOOLS_STATS (BCFTOOLS_CONCAT.out.vcf.join(ch_final_tbi), [], [], [])
 

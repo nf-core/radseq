@@ -2,7 +2,7 @@ process BEDOPS_MERGE_BED {
     tag "$meta.id"
     label 'process_high'
 
-    conda (params.enable_conda ? "bioconda::bedops=2.4.41" : null)
+    conda "bioconda::bedops=2.4.41"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bedops:2.4.41--h9f5acd7_0' :
         'quay.io/biocontainers/bedops:2.4.41--h9f5acd7_0' }"

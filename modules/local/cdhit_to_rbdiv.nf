@@ -2,7 +2,7 @@ process CDHIT_TO_RBDIV {
     tag "$meta.id"
     label 'process_medium'
     
-    conda (params.enable_conda ? "bioconda::coreutils=8.25" : null)
+    conda "bioconda::coreutils=8.25"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/coreutils:8.25--0' :
         'quay.io/biocontainers/coreutils:8.25--0' }"

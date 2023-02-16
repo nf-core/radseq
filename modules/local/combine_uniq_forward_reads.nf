@@ -3,10 +3,10 @@ process COMBINE_UNIQUE_READS {
     label 'process_medium'
 
     // get a can't find conda dir. ? Check you have anaconda3 installed
-    conda (params.enable_conda ? 'bioconda::perl-sys-info-driver-linux=0.7905' : null)
+    conda 'bioconda::perl-sys-info-driver-linux=0.7905'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' :
-        'quay.io/upennlibraries/perl_apache' }"
+        'quay.io/biocontainers/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' }"
 
     input:
     tuple val (meta), path (reads) // loading all individual uniq sequence per collected

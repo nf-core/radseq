@@ -2,7 +2,7 @@ process PREPARE_FORWARD_READS {
     tag "${meta.id}"
     label 'process_medium'
 
-    conda (params.enable_conda ? 'bioconda::perl-sys-info-driver-linux=0.7905' : null)
+    conda 'bioconda::perl-sys-info-driver-linux=0.7905'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' :
         'quay.io/biocontainers/perl-sys-info-driver-linux:0.7905--pl5321hdfd78af_1' }"

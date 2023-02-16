@@ -2,7 +2,7 @@ process CREATE_INTERVALS {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::perl=5.26.2" : null)
+    conda "bioconda::perl-bioperl=1.7.8"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/perl:5.26.2' :
         'quay.io/biocontainers/perl:5.26.2' }"

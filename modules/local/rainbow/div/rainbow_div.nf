@@ -2,7 +2,7 @@ process RAINBOW_DIV {
     tag "${meta.id}"
     label 'process_medium'
 
-    conda (params.enable_conda ? 'bioconda::rainbow=2.0.4' : null)
+    conda 'bioconda::rainbow=2.0.4'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/rainbow:2.0.4--hec16e2b_7' :
         'quay.io/biocontainers/rainbow:2.0.4--hec16e2b_7' }"
