@@ -1,3 +1,4 @@
+include { FASTP as TRIM_FASTP          } from '../../modules/nf-core/fastp/main.nf'
 include { PREPARE_FORWARD_READS        } from '../../modules/local/prepare_forward_reads.nf'
 include { COMBINE_UNIQUE_READS         } from '../../modules/local/combine_uniq_forward_reads.nf'
 include { SEQTK_SEQ                    } from '../../modules/nf-core/seqtk/seq/main.nf'
@@ -25,8 +26,11 @@ workflow CDHIT_RAINBOW {
     main:
     ch_versions = Channel.empty()
 
+    // perform any necessary trimming 
+    def perf_reads = params.need_to_trim_fastq ? TRIM_FASTP(reads, [[],[]], true, false, false).reads : reads 
+
     // deduplicate forward reads
-    ch_uniq_forwardreads = PREPARE_FORWARD_READS (reads, sequence_type).indv_uniq_seqs
+    ch_uniq_forwardreads = PREPARE_FORWARD_READS (perf_reads, sequence_type).indv_uniq_seqs
     ch_versions = ch_versions.mix(PREPARE_FORWARD_READS.out.versions)
 
     ch_combine_unique_reads = ch_uniq_forwardreads
@@ -45,7 +49,7 @@ workflow CDHIT_RAINBOW {
     def minReadDepth_BetweenIndividual = params.minreaddepth_betweenindividual ?: [2]
 
     // Combine forward reads across individuals
-    ch_uniq_full_fasta = COMBINE_UNIQUE_READS (ch_combine_unique_reads, sequence_type, Channel.fromList(minReadDepth_WithinIndividual), Channel.fromList(minReadDepth_BetweenIndividual)).uniq_reads
+    ch_uniq_full_fasta = COMBINE_UNIQUE_READS (ch_combine_unique_reads, sequence_type, Channel.value(minReadDepth_WithinIndividual), Channel.value(minReadDepth_BetweenIndividual)).uniq_reads
     ch_versions = ch_versions.mix(COMBINE_UNIQUE_READS.out.versions)
 
     // write dummy quality scores for fastp
@@ -60,6 +64,7 @@ workflow CDHIT_RAINBOW {
     ch_cdhit_cluster = CDHIT (ch_trimadapters_uniq_fasta, DENOVO_FASTP.out.totaluniqseq, sequence_type).cdhit_cluster
     ch_versions = ch_versions.mix(CDHIT.out.versions)
 
+    // swtich which unique sequence output to fastP vs. CDHIT
     if (params.sequence_type == 'PE' || params.sequence_type == 'SE') {totaluniqseq = DENOVO_FASTP.out.totaluniqseq} else {totaluniqseq = CDHIT.out.forward_uniq}
 
     // cd-hit cluster to rainbow cluster format

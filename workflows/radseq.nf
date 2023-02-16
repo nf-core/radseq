@@ -35,8 +35,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK                            } from '../subworkflows/local/input_check'
-include { PROCESS_RAD                            } from '../subworkflows/local/fastp_processradtags'
-include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/cdhit_rainbow'
+include { PROCESS_RAD                            } from '../subworkflows/local/fastq_fastp'
+include { CDHIT_RAINBOW as DENOVO                } from '../subworkflows/local/fastq_cdhit_rainbow'
 include { FASTQ_INDEX_ALIGN_BWA_MINIMAP as ALIGN } from '../subworkflows/local/fastq_index_align_bwa_minimap'
 include { BAM_INTERVALS_BEDTOOLS                 } from '../subworkflows/local/bam_intervals_bedtools'
 include { BAM_VARIANT_CALLING_FREEBAYES          } from '../subworkflows/local/bam_variant_calling_freebayes'
