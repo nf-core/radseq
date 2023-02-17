@@ -38,8 +38,6 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
     ii. [`BWA-mem2`](https://github.com/bwa-mem2/bwa-mem2)
 
-    iii. [`MINIMAP2`](https://github.com/lh3/minimap2)
-
 5. UMI-based deduplicated ([`UMI-tools`](https://github.com/CGATOxford/UMI-tools))
 
 5. Index, merge and index alignments ([`SAMtools`](https://github.com/samtools/samtools))
