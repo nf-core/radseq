@@ -44,7 +44,8 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 6. Construct intervals for freebayes ([`BEDtools`](https://bedtools.readthedocs.io/en/latest/))
 
-7. Variant calling ([`FreeBayes`](https://github.com/freebayes/freebayes), [`BCFtools`](https://github.com/samtools/bcftools))
+7. Variant calling ([`FreeBayes`](https://github.com/freebayes/freebayes)) 
+   - index, sort, concatenate [`BCFtools`](https://github.com/samtools/bcftools), [`tabix`](http://www.htslib.org/doc/tabix.html))
 
 5. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
