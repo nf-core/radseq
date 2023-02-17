@@ -222,12 +222,33 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
-                },
-                "enable_conda": {
+                }
+            }
+        },
+        "overide_defaults": {
+            "title": "Overide defaults",
+            "type": "object",
+            "description": "set to true to enable saving and/or additional pre-processing",
+            "default": "",
+            "properties": {
+                "save_bam_files": {
                     "type": "boolean",
-                    "description": "Run this workflow with Conda. You can also use '-profile conda' instead of providing this parameter.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-bacon"
+                    "description": "option to save bam files",
+                    "hidden": true
+                },
+                "denovo_intermediate_files": {
+                    "type": "boolean",
+                    "description": "option to save intermediate files generated in constructing psuedoreference",
+                    "hidden": true
+                },
+                "save_bed_intervals": {
+                    "type": "boolean",
+                    "description": "option to save intermediate files generated in FreeBayes multithreading intervals subworkflow",
+                    "hidden": true
+                },
+                "need_to_trim_fastq": {
+                    "type": "boolean",
+                    "description": "enable trimming of reads prior to denovo clustering"
                 }
             }
         }
@@ -247,23 +268,9 @@
         },
         {
             "$ref": "#/definitions/generic_options"
-        }
-    ],
-    "properties": {
-        "denovo_intermediate_files": {
-            "type": "boolean",
-            "description": "option to save intermediate files generated in constructing psuedoreference",
-            "hidden": true
         },
-        "save_bam_files": {
-            "type": "boolean",
-            "description": "option to save bam files",
-            "hidden": true
-        },
-        "save_bed_intervals": {
-            "type": "boolean",
-            "description": "option to save intermediate files generated in FreeBayes multithreading intervals subworkflow",
-            "hidden": true
+        {
+            "$ref": "#/definitions/overide_defaults"
         }
-    }
+    ]
 }
