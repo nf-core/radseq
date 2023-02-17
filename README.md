@@ -16,8 +16,7 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
-**nf-core/radseq** is a bioinformatics best-practice analysis pipeline based off of the dDocent workflow.
+**nf-core/radseq** is a bioinformatics best-practice variant calling pipeline for RADseq data.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
@@ -25,8 +24,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources. The results obtained from the full-sized test can be viewed on the [nf-core website](https://nf-co.re/radseq/results).
 
 ## Pipeline summary
-
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter and quality trimming ([`fastp`](https://github.com/OpenGene/fastp))
@@ -40,8 +37,6 @@ On release, automated continuous integration tests run the pipeline on a full-si
     i. [`BWA`](https://bio-bwa.sourceforge.net/bwa.shtml)
 
     ii. [`BWAMEM2`](https://github.com/bwa-mem2/bwa-mem2)
-
-    iii. [`MINIMAP2`](https://github.com/lh3/minimap2)
 
 5. UMI-based deduplicated ([`UMI-tools`](https://github.com/CGATOxford/UMI-tools))
 
@@ -75,8 +70,6 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 4. Start running your own analysis!
 
-    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
-
     ```console
     nextflow run nf-core/radseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> --input samplesheet.csv
     ```
@@ -100,7 +93,6 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 <!-- If you use  nf-core/radseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
 You can cite the `nf-core` publication as follows:
