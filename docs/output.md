@@ -45,24 +45,45 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 # Directory Structure
 
-The default directory structure is as follows
+The default directory structure is as follows. This includes output from **both** denovo and reference methods. 
 
 ```
 {outdir}
 ├── denovo
 │   ├── alignments
+│   │   ├── bwamem2
+│   │   │   ├── bam
+│   │   │   ├── intervals
+│   │   │   │   ├── bedops_merge
+│   │   │   │   ├── bedtools_bamtobed
+│   │   │   │   ├── bedtools_coverage
+│   │   │   │   ├── bedtools_makewindows
+│   │   │   │   ├── bedtools_merge
+│   │   │   │   ├── bedtools_sort
+│   │   │   │   └── create_intervals
+│   │   │   └── umitools_dedup
+│   │   │       └── stats
+│   │   ├── intervals
+│   │   │   └── bedtools_intersect
 │   │   ├── samtools_index
 │   │   ├── samtools_merge
-│   │   ├── samtools_stats
-│   │   └── umitools_dedup
-│   │       └── stats
+│   │   └── samtools_stats
+│   ├── fastp
 │   ├── reference
+│   │   ├── bwamem2
+│   │   │   └── index
 │   │   ├── cdhit
 │   │   ├── cdhit_to_rbdiv
+│   │   ├── fastp
 │   │   ├── rainbow_div
 │   │   ├── rainbow_merge
+│   │   ├── samtools
+│   │   │   └── index
+│   │   ├── seqtk
+│   │   ├── unique_sequences
 │   │   └── write_fasta
 │   └── variant_calling
+│       └── intervals
 ├── fastp
 ├── fastqc
 ├── multiqc
@@ -70,12 +91,30 @@ The default directory structure is as follows
 ├── pipeline_info
 └── reference
     ├── alignments
+    │   ├── bwamem2
+    │   │   ├── bam
+    │   │   ├── intervals
+    │   │   │   ├── bedops_merge
+    │   │   │   ├── bedtools_bamtobed
+    │   │   │   ├── bedtools_coverage
+    │   │   │   ├── bedtools_makewindows
+    │   │   │   ├── bedtools_merge
+    │   │   │   ├── bedtools_sort
+    │   │   │   └── create_intervals
+    │   │   └── umitools_dedup
+    │   │       └── stats
+    │   ├── intervals
+    │   │   └── bedtools_intersect
     │   ├── samtools_index
     │   ├── samtools_merge
-    │   ├── samtools_stats
-    │   └── umitools_dedup
-    │       └── stats
+    │   └── samtools_stats
+    ├── reference
+    │   ├── bwamem2
+    │   │   └── index
+    │   └── samtools
+    │       └── index
     └── variant_calling
+        └── intervals
 ```
 
 # Pre-Processing

@@ -253,13 +253,17 @@ To run the workflow with no reference genome you must specify `--method 'denovo'
 
 ### Denovo parameters
 
-For psuedo-reference construction radseq follows dDocent [paper](https://peerj.com/articles/431/), [GitHub](https://github.com/jpuritz/dDocent)
+For psuedo-reference construction this version of radseq follows dDocent [paper](https://peerj.com/articles/431/), [GitHub](https://github.com/jpuritz/dDocent)
 
 `--sequence_type` : An acronym describing the type of sequencing method used. Avaiable options include `SE`, `PE`, `RPE`, `OL`, `ROL`
+
+`--need_to_trim_fastq` : perform any pre-processing with `TRIM_FASTP` on reads for denovo construction. 
 
 `--minReadDepth_WithinIndividual` : minimum number of reads within an individual to include in psuedo-reference construction
 
 `--minReadDepth_BetweenIndividual` : minimum number of reads across individuals to include in psuedo-reference construction
+
+`--denovo_intermediate_files` : save intermediate files generated throughout the denovo construction
 
 ### Alignment parameters
 
@@ -273,5 +277,4 @@ The threshold `--splitByReadCoverage` determines the amount of read depth to spl
 
 **Warning** For large sample size analysis or large fastq files, it's recommended to randomly subset bam file input into subworkflow by passing `--subset_intervals_channel [integer]` into parameters.
 
-## Variant calling parameters
 
