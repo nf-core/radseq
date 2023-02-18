@@ -31,7 +31,7 @@ On release, automated continuous integration tests run the pipeline on a full-si
     
     i. [`CDHIT-est`](https://sites.google.com/view/cd-hit?pli=1) -> [`Rainbow`](https://github.com/ChongLab/rainbow)
     
-    ii. **No Preprossesing**
+    ii. No Preprossesing
 4. Choice of alignment software 
     
     i. [`BWA`](https://bio-bwa.sourceforge.net/bwa.shtml)
