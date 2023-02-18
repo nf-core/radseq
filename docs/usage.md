@@ -243,9 +243,23 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case a reference genome is available. 
 
-## How to handle UMIs
+## Pre-processing reads
 
 radseq simultaneously trims UMI-barcodes and low quality reads using [fastp](https://github.com/OpenGene/fastp).
+
+#### fastp
+
+- `--dont-eval-duplication` : save processing speed by not evaluated for read duplication
+- `--cut_right` : enable cutting from left to right
+- `--cut_window_size 25` : window size to measure average quality from
+- `--cut_mean_quality 20` : minimum mean quality within the window 
+- `--correction` : enable corrections for paired end data
+- `--overlap_diff_limit 1` : allow a minimum overlap difference
+- `--trim_front1` : number of base paires to remove in the forward sequence 
+- `--trim_front2` : number of base pairs to remove in the reverse sequence
+- `--trim_polyg` : enable the trimming off of poly G tails
+
+### How to handle UMI barcodes
 
 In order to reposition UMI tags to the header of the fastq file you must provide additional information to `--umi_read_structure [structure]` in your parameters.
 
