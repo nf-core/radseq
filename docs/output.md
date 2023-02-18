@@ -51,27 +51,24 @@ The default directory structure is as follows. This includes output from **both*
 {outdir}
 ├── denovo
 │   ├── alignments
-│   │   ├── bwamem2
-│   │   │   ├── bam
-│   │   │   ├── intervals
-│   │   │   │   ├── bedops_merge
-│   │   │   │   ├── bedtools_bamtobed
-│   │   │   │   ├── bedtools_coverage
-│   │   │   │   ├── bedtools_makewindows
-│   │   │   │   ├── bedtools_merge
-│   │   │   │   ├── bedtools_sort
-│   │   │   │   └── create_intervals
-│   │   │   └── umitools_dedup
-│   │   │       └── stats
-│   │   ├── intervals
-│   │   │   └── bedtools_intersect
-│   │   ├── samtools_index
-│   │   ├── samtools_merge
-│   │   └── samtools_stats
-│   ├── fastp
+│   │   └── bwamem2
+│   │       ├── bam
+│   │       ├── index
+│   │       ├── intervals
+│   │       │   ├── bedops_merge
+│   │       │   ├── bedtools_bamtobed
+│   │       │   ├── bedtools_coverage
+│   │       │   ├── bedtools_intersect
+│   │       │   ├── bedtools_makewindows
+│   │       │   ├── bedtools_merge
+│   │       │   ├── bedtools_sort
+│   │       │   └── create_intervals
+│   │       ├── samtools_index
+│   │       ├── samtools_merge
+│   │       ├── samtools_stats
+│   │       └── umitools_dedup
+│   │           └── stats
 │   ├── reference
-│   │   ├── bwamem2
-│   │   │   └── index
 │   │   ├── cdhit
 │   │   ├── cdhit_to_rbdiv
 │   │   ├── fastp
@@ -82,6 +79,7 @@ The default directory structure is as follows. This includes output from **both*
 │   │   ├── seqtk
 │   │   ├── unique_sequences
 │   │   └── write_fasta
+│   ├── trim_fastp
 │   └── variant_calling
 │       └── intervals
 ├── fastp
@@ -91,28 +89,25 @@ The default directory structure is as follows. This includes output from **both*
 ├── pipeline_info
 └── reference
     ├── alignments
-    │   ├── bwamem2
-    │   │   ├── bam
-    │   │   ├── intervals
-    │   │   │   ├── bedops_merge
-    │   │   │   ├── bedtools_bamtobed
-    │   │   │   ├── bedtools_coverage
-    │   │   │   ├── bedtools_makewindows
-    │   │   │   ├── bedtools_merge
-    │   │   │   ├── bedtools_sort
-    │   │   │   └── create_intervals
-    │   │   └── umitools_dedup
-    │   │       └── stats
-    │   ├── intervals
-    │   │   └── bedtools_intersect
-    │   ├── samtools_index
-    │   ├── samtools_merge
-    │   └── samtools_stats
-    ├── reference
-    │   ├── bwamem2
-    │   │   └── index
-    │   └── samtools
-    │       └── index
+    │   └── bwamem2
+    │       ├── bam
+    │       ├── index
+    │       ├── intervals
+    │       │   ├── bedops_merge
+    │       │   ├── bedtools_bamtobed
+    │       │   ├── bedtools_coverage
+    │       │   ├── bedtools_intersect
+    │       │   ├── bedtools_makewindows
+    │       │   ├── bedtools_merge
+    │       │   ├── bedtools_sort
+    │       │   └── create_intervals
+    │       ├── samtools_index
+    │       ├── samtools_merge
+    │       ├── samtools_stats
+    │       └── umitools_dedup
+    │           └── stats
+    ├── samtools
+    │   └── index
     └── variant_calling
         └── intervals
 ```

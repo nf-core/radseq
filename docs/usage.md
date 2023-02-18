@@ -237,27 +237,25 @@ We recommend adding the following line to your environment to limit this (typica
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
 
-## How to handle UMIs
-
-radseq simultaneously processes UMI-reads and filters low quality reads using [fastp](https://github.com/OpenGene/fastp).
-
-In order to remove UMI tags you must provide additional information to `--umi_read_structure [structure]` in your parameters.
-
-This will enable deduplication of bam files prior to variant calling and the calculation of alignment statistics.
+# Lost in parameter space?
 
 ## How to run in reference or denovo modes?
 
-To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case of the latter. 
+To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case a reference genome is available. 
 
-## Lost in parameter space?
+## How to handle UMIs
 
-### Denovo parameters
+radseq simultaneously trims UMI-barcodes and low quality reads using [fastp](https://github.com/OpenGene/fastp).
+
+In order to reposition UMI tags to the header of the fastq file you must provide additional information to `--umi_read_structure [structure]` in your parameters.
+
+## Denovo parameters
 
 For psuedo-reference construction this version of radseq follows dDocent [paper](https://peerj.com/articles/431/), [GitHub](https://github.com/jpuritz/dDocent)
 
 `--sequence_type` : An acronym describing the type of sequencing method used. Avaiable options include `SE`, `PE`, `RPE`, `OL`, `ROL`
 
-`--need_to_trim_fastq` : perform any pre-processing with `TRIM_FASTP` on reads for denovo construction. 
+`--need_to_trim_fastq` : perform any read trimming with `TRIM_FASTP` on reads prior to denovo construction. 
 
 `--minReadDepth_WithinIndividual` : minimum number of reads within an individual to include in psuedo-reference construction
 
@@ -265,16 +263,58 @@ For psuedo-reference construction this version of radseq follows dDocent [paper]
 
 `--denovo_intermediate_files` : save intermediate files generated throughout the denovo construction
 
+#### cdhit
+
+- `-g 1` : type of cluster algorithm to deploy
+- `-d 100` : description length
+- `-c 0.9` : sequence similiarty
+
+#### rainbow div
+
+- `-f 0.5` : similarity fraction
+- `-K 10` : max variants for splitting
+
+#### rainbow merge
+
+- `-r 2` : minimum number of reads
+- `-N 10000` : max number of clusters to merge
+- `-R 10000` : max number of reads to assemble
+- `-l 20` : minimum read overlap
+- `-f 0.75` : minimum similarity fraction
+
 ### Alignment parameters
 
 You can adjust the aligner in the parameters `--aligner` : [`'bwa'`,`'bwa2'`], radseq currently supports bwa mem and bwa mem2.
 
-### What does the bam_intervals_bedtools.nf subworkflow do?
+### Parameters for bwa/bwa-mem2
 
-This subworkflow creates intervals to be passed into FreeBayes for parallel execution on regions determined based on read coverage.
+#### bwamem/bwa-mem2
+
+- `-L 20,5` : clipping penalty 
+- `-a` : output secondary sequences
+- `-M` : mark short seqeuences as secondary
+- `-T 30` : minimum alignment quality
+- `-A 1` : matching score
+- `-B 4` : mismatch score
+- `-O 6` : gap penalty 
+
+#### samtools view
+- `-q 1` : quality score
+
+## What does the bam_intervals_bedtools.nf subworkflow do?
+
+Passes multiple files containing region information for multithreading with `freebayes`. 
 
 The threshold `--splitByReadCoverage` determines the amount of read depth to split an interval into smaller, 1/2 read-length sized intervals with a default of `500000`. 
 
 **Warning** For large sample size analysis or large fastq files, it's recommended to randomly subset bam file input into subworkflow by passing `--subset_intervals_channel [integer]` into parameters.
 
+### Variant Calling Parameters
 
+#### Freebayes
+- `-m 5` : minimum map quality 
+- `-q 5` : minimum base quality
+- `-E 3` : the complexity gap
+- `-n 1` : number of alleles considered 
+- `-F 10` : minimum fraction of readuces supporting the alternate allele
+- `--min-repeat-entropy 1` : requires 1 bit per base of entropy in a haplotype window
