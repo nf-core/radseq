@@ -43,12 +43,12 @@ A final samplesheet file consisting of both single- and paired-end data may look
 
 ```console
 sample,fastq_1,fastq_2,umi_barcodes,pop
-sample1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,false,pop1
-sample2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,false,pop1
-sample3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,false,pop1
-sample4,AEG588A4_S4_L003_R1_001.fastq.gz,false,pop2
-sample5,AEG588A5_S5_L003_R1_001.fastq.gz,false,pop2
-sample6,AEG588A6_S6_L003_R1_001.fastq.gz,false,pop2
+sample1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,false
+sample2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,false
+sample3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,false
+sample4,AEG588A4_S4_L003_R1_001.fastq.gz,false
+sample5,AEG588A5_S5_L003_R1_001.fastq.gz,false
+sample6,AEG588A6_S6_L003_R1_001.fastq.gz,false
 ```
 
 | Column         | Description                                                                                                                                                                            |
@@ -57,7 +57,6 @@ sample6,AEG588A6_S6_L003_R1_001.fastq.gz,false,pop2
 | `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `umi_barcodes` | Boolean variable (true/false) describing describing the presence a of unique moleculor identifier (umi) in the sample. 
-| `pop`          | Designated population the sample belongs to.
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -239,11 +238,11 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 # Lost in parameter space?
 
-## How to run in reference or denovo modes?
+### How to run in reference or denovo modes?
 
 To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case a reference genome is available. 
 
-## Pre-processing reads
+### Pre-processing reads
 
 radseq simultaneously trims UMI-barcodes and low quality reads using [fastp](https://github.com/OpenGene/fastp).
 
@@ -259,11 +258,11 @@ radseq simultaneously trims UMI-barcodes and low quality reads using [fastp](htt
 - `--trim_front2` : number of base pairs to remove in the reverse sequence
 - `--trim_polyg` : enable the trimming off of poly G tails
 
-### How to handle UMI barcodes
+#### How to handle UMI barcodes
 
 In order to reposition UMI tags to the header of the fastq file you must provide additional information to `--umi_read_structure [structure]` in your parameters.
 
-## Denovo parameters
+### Denovo parameters
 
 For psuedo-reference construction this version of radseq follows dDocent [paper](https://peerj.com/articles/431/), [GitHub](https://github.com/jpuritz/dDocent)
 
