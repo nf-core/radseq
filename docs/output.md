@@ -302,7 +302,7 @@ To enable the saving of files generated for interval construction in the output-
 For large datasets, it may be useful to randomly subsample the number of individuals going into `bam_intervals_bedtools.nf` subworkflow using `--subset_intervals_channel=<integer>`. Particularly at the `BEDtools merge` module the memory footprint can be large. 
 
 ### BEDtools bamtobed
-
+Convert individual binary alignment files to bed format
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -312,7 +312,7 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### BEDOPS merge
-
+Merge individual bed files 
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -322,7 +322,7 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### BEDtools sort
-
+Sort the single merged bed file based on reference index
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -332,7 +332,7 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### BEDtools coverage
-
+Calculate number of reads across regions in a single individual bed file.
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -342,7 +342,7 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### BEDtools merge cov
-
+Determine the sum of coverage across all regions and individuals. 
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -352,7 +352,7 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### BEDtools makewindows
-
+Split regions with more than `--splitByReadCoverage` into half the total read length.
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -364,7 +364,7 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### BEDtools intersect
-
+Joins and removes any sites overlapping in the single merged bed file with split regions. 
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -374,13 +374,12 @@ For large datasets, it may be useful to randomly subsample the number of individ
 </details>
 
 ### Create intervals
-
+Splits bed files into regions for input to FreeBayes.
 <details markdown="1">
 <summary>Output files</summary>
 
 * `{outdir}/{method}/alignments/{aligner}/bedtools_intersect`
-    * `mapped.*.bed`: Split bed files passed into FreeBayes for multithreading
-
+    * `mapped.*.bed`: split bed file
 </details>
 
 
@@ -407,44 +406,6 @@ By default radseq will output a single vcf joined from independent runs. To enab
 
 # Quality Control and Visualization
 
-### bcftools stats
-
-[bcftools stats](https://samtools.github.io/bcftools/bcftools.html) is a tool for collecting statistics from a VCF or BCF file that can be interpretted by MultiQC.
-
-<details markdown="1">
-<summary>Output files</summary>
-
-* `{outdir}/{method}/variant_calling/`
-    * `*_stats.txt`: 
-
-</details>
-
-### FastP
-
-[FastP](https://github.com/OpenGene/fastp) is a tool designed to be an all-in-one preprocessor for FastQ files. Statistics are passed to MultiQC.
-
-<details markdown="1">
-<summary>Output files</summary>
-
-* `{outdir}/fastp/`
-    * `*_fastp.html`: Fastp report containing quality metrics
-    * `*_fastp.log`: Log output containing statistics
-
-</details>
-
-### samtools
-
-radseq supports generation of statistics from alignment files with [samtools stats](http://www.htslib.org/doc/samtools-stats.html), [samtools flagstat](http://www.htslib.org/doc/samtools-flagstat.html), [samtools idxstats](http://www.htslib.org/doc/samtools-idxstats.html).
-
-<details markdown="1">
-<summary>Output files</summary>
-
-* `{outdir}/{method}/alignments/{aligner}/samtools_stats`
-    * `*.flagstat`: 
-    * `*.stats`:
-    * `*.idxstats`:
-
-</details>
 
 ### FastQC
 
@@ -466,6 +427,45 @@ radseq supports generation of statistics from alignment files with [samtools sta
 ![MultiQC - FastQC adapter content plot](images/mqc_fastqc_adapter.png)
 
 > **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+
+
+### FastP
+
+[FastP](https://github.com/OpenGene/fastp) is a tool designed to be an all-in-one preprocessor for FastQ files. Statistics are passed to MultiQC.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/fastp/`
+    * `*_fastp.html`: Fastp report containing quality metrics
+    * `*_fastp.log`: Log output containing statistics
+
+</details>
+
+### samtools
+
+Alignment statistics may be generated from BAM files with [samtools stats](http://www.htslib.org/doc/samtools-stats.html), [samtools flagstat](http://www.htslib.org/doc/samtools-flagstat.html), [samtools idxstats](http://www.htslib.org/doc/samtools-idxstats.html).
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/alignments/{aligner}/samtools_stats`
+    * `{*.flagstat, *.stats, *.idxstats}`
+        * Statistics displayed in `MultiQC`
+
+</details>
+
+### bcftools stats
+
+[bcftools stats](https://samtools.github.io/bcftools/bcftools.html) is a tool for collecting statistics from a VCF or BCF file that can be interpretted by MultiQC.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+* `{outdir}/{method}/variant_calling/`
+    * `*_stats.txt`: 
+
+</details>
 
 ### MultiQC
 

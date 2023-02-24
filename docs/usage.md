@@ -238,13 +238,15 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 # Lost in parameter space?
 
+Below are descriptons of the default parameters contained within `nextflow.config`.
+
 ### How to run in reference or denovo modes?
 
 To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case a reference genome is available. 
 
 ### Pre-processing reads
 
-radseq simultaneously trims UMI-barcodes and low quality reads using [fastp](https://github.com/OpenGene/fastp).
+radseq can trim reads using [fastp](https://github.com/OpenGene/fastp). 
 
 #### fastp
 
@@ -297,9 +299,9 @@ For psuedo-reference construction this version of radseq follows dDocent [paper]
 
 ### Alignment parameters
 
-You can adjust the aligner in the parameters `--aligner` : [`'bwa'`,`'bwa2'`], radseq currently supports bwa mem and bwa mem2.
+You can adjust the aligner in the parameters `--aligner` : [`'bwamem'`,`'bwamem2'`]
 
-### Parameters for bwa/bwa-mem2
+### Alignment Parameters
 
 #### bwamem/bwa-mem2
 

@@ -1,3 +1,0 @@
-"NFCORE_RADSEQ:RADSEQ:DENOVO:DENOVO_FASTP":
-    fastp: /home/eaglesnatcher123/nextflow_pipelines/nf-core-radseq/work/ef/a42c17162d3c0e879d6ac44e17ecd3/.command.sh: line 23: fastp: command not found
-    BusyBox: 1.30.1
