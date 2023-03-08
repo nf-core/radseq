@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# 
+# Utility script for generating input csv file based on process_radtags output
+#   NOTE. Make sure to remove *.rem.* files
+#
 
 echo "sample,fastq_1,fastq_2,umi_barcodes" > input.csv
 paste -d',' <(for i in $(pwd)/data/demult/*.1.fq.gz; do basename $i | cut -f1 -d'.' -; done)\
