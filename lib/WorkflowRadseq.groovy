@@ -2,36 +2,21 @@
 // This file holds several functions specific to the workflow/radseq.nf in the nf-core/radseq pipeline
 //
 
+import nextflow.Nextflow
+import groovy.text.SimpleTemplateEngine
+
 class WorkflowRadseq {
 
     //
     // Check and validate parameters
     //
     public static void initialise(params, log) {
-        //genomeExistsError(params, log) // function below
+        genomeExistsError(params, log)
 
-        if (!params.method) {
-            log.error "type of workflow to execute not specified with e.g. '--method denovo' or via a detectable config file."
-            System.exit(1)
+
+        if (!params.fasta) {
+            Nextflow.error "Genome fasta file not specified with e.g. '--fasta genome.fa' or via a detectable config file."
         }
-        if (params.method == 'reference') {
-            if (!params.genome || params.genome == null) {
-            log.error "need to specify a genome file with e.g. '--genome fasta' or via a detectable config file."
-            System.exit(1)
-            }
-        }
-        if (params.method == 'denovo'){
-            if (!params.sequence_type) {
-                log.error "need to specify the sequencing method with e.g. '--sequence_type' or via a detectable config file"
-                System.exit(1)
-            }
-            if (!params.minreaddepth_withinindividual || params.minreaddepth_withinindividual == null) {
-                log.warn("using default range of values for minReadDepth_withinIndividual")
-            }
-            if (params.method == 'denovo' && !params.minreaddepth_betweenindividual || params.minreaddepth_betweenindividual == null) {
-                log.warn("using default range of values for minReadDepth_BetweenIndividual")
-            }   
-        }  
     }
 
     //
@@ -61,17 +46,34 @@ class WorkflowRadseq {
         return yaml_file_text
     }
 
+    public static String methodsDescriptionText(run_workflow, mqc_methods_yaml) {
+        // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file
+        def meta = [:]
+        meta.workflow = run_workflow.toMap()
+        meta["manifest_map"] = run_workflow.manifest.toMap()
+
+        meta["doi_text"] = meta.manifest_map.doi ? "(doi: <a href=\'https://doi.org/${meta.manifest_map.doi}\'>${meta.manifest_map.doi}</a>)" : ""
+        meta["nodoi_text"] = meta.manifest_map.doi ? "": "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
+
+        def methods_text = mqc_methods_yaml.text
+
+        def engine =  new SimpleTemplateEngine()
+        def description_html = engine.createTemplate(methods_text).make(meta)
+
+        return description_html
+    }
+
     //
     // Exit pipeline if incorrect --genome key provided
     //
     private static void genomeExistsError(params, log) {
         if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-            log.error "=============================================================================\n" +
+            def error_string = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" +
                 "  Currently, the available genome keys are:\n" +
                 "  ${params.genomes.keySet().join(", ")}\n" +
-                "==================================================================================="
-            System.exit(1)
+                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            Nextflow.error(error_string)
         }
     }
 }
