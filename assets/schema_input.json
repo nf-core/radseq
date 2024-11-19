@@ -34,9 +34,6 @@
                 "errorMessage": "Boolean that describes if the read contains UMI barcodes must be binary 'TRUE' or 'FALSE'"
             }
         },
-        "required": [
-            "sample",
-            "fastq_1"
-        ]
+        "required": ["sample", "fastq_1"]
     }
 }

@@ -37,9 +37,9 @@ radseq does not handle duplicate samples in the input samplesheet. All samples m
 
 ### Full samplesheet
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below. **Important** the pipeline will group together individuals based on shared characters up to the first number. Therefore it is important to start sample ID's with a shared character and start the unique identifier with a number.   
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below. **Important** the pipeline will group together individuals based on shared characters up to the first number. Therefore it is important to start sample ID's with a shared character and start the unique identifier with a number.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. Files grouped together will have the prefix sample, like for example, the final vcf will be named sample.vcf.gz. 
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. Files grouped together will have the prefix sample, like for example, the final vcf will be named sample.vcf.gz.
 
 ```console
 sample,fastq_1,fastq_2,umi_barcodes
@@ -52,11 +52,11 @@ sample6,AEG588A6_S6_L003_R1_001.fastq.gz,false
 ```
 
 | Column         | Description                                                                                                                                                                            |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `umi_barcodes` | Boolean variable (true/false) describing describing the presence a of unique moleculor identifier (umi) in the sample. 
+| `umi_barcodes` | Boolean variable (true/false) describing describing the presence a of unique moleculor identifier (umi) in the sample.                                                                 |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -95,21 +95,21 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
-* `docker`
-    * A generic configuration profile to be used with [Docker](https://docker.com/)
-* `singularity`
-    * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
-* `podman`
-    * A generic configuration profile to be used with [Podman](https://podman.io/)
-* `shifter`
-    * A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
-* `charliecloud`
-    * A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
-* `conda`
-    * A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
-* `test`
-    * A profile with a complete configuration for automated testing
-    * Includes links to test data so needs no other parameters
+-   `docker`
+    -   A generic configuration profile to be used with [Docker](https://docker.com/)
+-   `singularity`
+    -   A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+-   `podman`
+    -   A generic configuration profile to be used with [Podman](https://podman.io/)
+-   `shifter`
+    -   A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+-   `charliecloud`
+    -   A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+-   `conda`
+    -   A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
+-   `test`
+    -   A profile with a complete configuration for automated testing
+    -   Includes links to test data so needs no other parameters
 
 ### `-resume`
 
@@ -158,7 +158,7 @@ Work dir:
 Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
 ```
 
-To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN). We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so based on the search results the file we want is `modules/nf-core/software/star/align/main.nf`. If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/star/align/main.nf#L9). The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements. The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB. Providing you haven't set any other standard nf-core parameters to __cap__ the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `STAR_ALIGN` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB. The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
+To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN). We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so based on the search results the file we want is `modules/nf-core/software/star/align/main.nf`. If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/star/align/main.nf#L9). The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements. The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB. Providing you haven't set any other standard nf-core parameters to **cap** the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `STAR_ALIGN` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB. The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
 
 ```nextflow
 process {
@@ -178,7 +178,7 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 2. Find the latest version of the Biocontainer available on [Quay.io](https://quay.io/repository/biocontainers/pangolin?tag=latest&tab=tags)
 3. Create the custom config accordingly:
 
-    * For Docker:
+    - For Docker:
 
         ```nextflow
         process {
@@ -188,7 +188,7 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
         }
         ```
 
-    * For Singularity:
+    - For Singularity:
 
         ```nextflow
         process {
@@ -198,7 +198,7 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
         }
         ```
 
-    * For Conda:
+    - For Conda:
 
         ```nextflow
         process {
@@ -242,23 +242,23 @@ Below are descriptons of the default parameters contained within `nextflow.confi
 
 ### How to run in reference or denovo modes?
 
-To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case a reference genome is available. 
+To run the workflow with no reference genome you must specify `--method 'denovo'` in your parameters or `--method 'reference'` in case a reference genome is available.
 
 ### Pre-processing reads
 
-radseq can trim reads using [fastp](https://github.com/OpenGene/fastp). 
+radseq can trim reads using [fastp](https://github.com/OpenGene/fastp).
 
 #### fastp
 
-- `--dont-eval-duplication` : save processing speed by not evaluated for read duplication
-- `--cut_right` : enable cutting from left to right
-- `--cut_window_size 25` : window size to measure average quality from
-- `--cut_mean_quality 20` : minimum mean quality within the window 
-- `--correction` : enable corrections for paired end data
-- `--overlap_diff_limit 1` : allow a minimum overlap difference
-- `--trim_front1` : number of base paires to remove in the forward sequence 
-- `--trim_front2` : number of base pairs to remove in the reverse sequence
-- `--trim_polyg` : enable the trimming off of poly G tails
+-   `--dont-eval-duplication` : save processing speed by not evaluated for read duplication
+-   `--cut_right` : enable cutting from left to right
+-   `--cut_window_size 25` : window size to measure average quality from
+-   `--cut_mean_quality 20` : minimum mean quality within the window
+-   `--correction` : enable corrections for paired end data
+-   `--overlap_diff_limit 1` : allow a minimum overlap difference
+-   `--trim_front1` : number of base paires to remove in the forward sequence
+-   `--trim_front2` : number of base pairs to remove in the reverse sequence
+-   `--trim_polyg` : enable the trimming off of poly G tails
 
 #### How to handle UMI barcodes
 
@@ -270,7 +270,7 @@ For psuedo-reference construction this version of radseq follows dDocent [paper]
 
 `--sequence_type` : An acronym describing the type of sequencing method used. Avaiable options include `SE`, `PE`, `RPE`, `OL`, `ROL`
 
-`--need_to_trim_fastq` : perform any read trimming with `TRIM_FASTP` on reads prior to denovo construction. 
+`--need_to_trim_fastq` : perform any read trimming with `TRIM_FASTP` on reads prior to denovo construction.
 
 `--minReadDepth_WithinIndividual` : minimum number of reads within an individual to include in psuedo-reference construction
 
@@ -280,22 +280,22 @@ For psuedo-reference construction this version of radseq follows dDocent [paper]
 
 #### cdhit
 
-- `-g 1` : type of cluster algorithm to deploy
-- `-d 100` : description length
-- `-c 0.9` : sequence similiarty
+-   `-g 1` : type of cluster algorithm to deploy
+-   `-d 100` : description length
+-   `-c 0.9` : sequence similiarty
 
 #### rainbow div
 
-- `-f 0.5` : similarity fraction
-- `-K 10` : max variants for splitting
+-   `-f 0.5` : similarity fraction
+-   `-K 10` : max variants for splitting
 
 #### rainbow merge
 
-- `-r 2` : minimum number of reads
-- `-N 10000` : max number of clusters to merge
-- `-R 10000` : max number of reads to assemble
-- `-l 20` : minimum read overlap
-- `-f 0.75` : minimum similarity fraction
+-   `-r 2` : minimum number of reads
+-   `-N 10000` : max number of clusters to merge
+-   `-R 10000` : max number of reads to assemble
+-   `-l 20` : minimum read overlap
+-   `-f 0.75` : minimum similarity fraction
 
 ### Alignment parameters
 
@@ -305,31 +305,33 @@ You can adjust the aligner in the parameters `--aligner` : [`'bwamem'`,`'bwamem2
 
 #### bwamem/bwa-mem2
 
-- `-L 20,5` : clipping penalty 
-- `-a` : output secondary sequences
-- `-M` : mark short seqeuences as secondary
-- `-T 30` : minimum alignment quality
-- `-A 1` : matching score
-- `-B 4` : mismatch score
-- `-O 6` : gap penalty 
+-   `-L 20,5` : clipping penalty
+-   `-a` : output secondary sequences
+-   `-M` : mark short seqeuences as secondary
+-   `-T 30` : minimum alignment quality
+-   `-A 1` : matching score
+-   `-B 4` : mismatch score
+-   `-O 6` : gap penalty
 
 #### samtools view
-- `-q 1` : quality score
+
+-   `-q 1` : quality score
 
 ### What does the bam_intervals_bedtools.nf subworkflow do?
 
-Passes multiple files containing region information for multithreading with `freebayes`. 
+Passes multiple files containing region information for multithreading with `freebayes`.
 
-The threshold `--splitByReadCoverage` determines the amount of read depth to split an interval into smaller, 1/2 read-length sized intervals with a default of `500000`. 
+The threshold `--splitByReadCoverage` determines the amount of read depth to split an interval into smaller, 1/2 read-length sized intervals with a default of `500000`.
 
 **Warning** For large sample size analysis or large fastq files, it's recommended to randomly subset bam file input into subworkflow by passing `--subset_intervals_channel [integer]` into parameters.
 
 ### Variant Calling Parameters
 
 #### Freebayes
-- `-m 5` : minimum map quality 
-- `-q 5` : minimum base quality
-- `-E 3` : the complexity gap
-- `-n 1` : number of alleles considered 
-- `-F 10` : minimum fraction of readuces supporting the alternate allele
-- `--min-repeat-entropy 1` : requires 1 bit per base of entropy in a haplotype window
+
+-   `-m 5` : minimum map quality
+-   `-q 5` : minimum base quality
+-   `-E 3` : the complexity gap
+-   `-n 1` : number of alleles considered
+-   `-F 10` : minimum fraction of readuces supporting the alternate allele
+-   `--min-repeat-entropy 1` : requires 1 bit per base of entropy in a haplotype window
