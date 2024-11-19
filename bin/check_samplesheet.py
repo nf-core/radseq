@@ -53,7 +53,7 @@ def check_samplesheet(file_in, file_out):
         ## Check header
         MIN_COLS = 3
         # Update the column names for the input samplesheet
-        HEADER = ["sample", "fastq_1", "fastq_2","umi_barcodes"]
+        HEADER = ["sample", "fastq_1", "fastq_2", "umi_barcodes"]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
         if header[: len(HEADER)] != HEADER:
             print("ERROR: Please check samplesheet header -> {} != {}".format(",".join(header), ",".join(HEADER)))
