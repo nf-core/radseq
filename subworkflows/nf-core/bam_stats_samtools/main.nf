@@ -8,19 +8,18 @@ include { SAMTOOLS_FLAGSTAT } from '../../../modules/nf-core/samtools/flagstat/m
 
 workflow BAM_STATS_SAMTOOLS {
     take:
-    bam_bai // channel: [ val(meta), [ bam/cram ], [bai/csi] ]
-    fasta   // channel: [ fasta ]
+    bam_bai_fasta // channel: [ val(meta), [ bam/cram ], [bai/csi], [fasta]]
 
     main:
     ch_versions = Channel.empty()
 
-    SAMTOOLS_STATS ( bam_bai, fasta )
+    SAMTOOLS_STATS ( bam_bai_fasta )
     ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions)
 
-    SAMTOOLS_FLAGSTAT ( bam_bai )
+    SAMTOOLS_FLAGSTAT ( bam_bai_fasta.map{meta,bam,bai,fasta-> [meta,bam,bai]} )
     ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions)
 
-    SAMTOOLS_IDXSTATS ( bam_bai )
+    SAMTOOLS_IDXSTATS ( bam_bai_fasta.map{meta,bam,bai,fasta-> [meta,bam,bai]} )
     ch_versions = ch_versions.mix(SAMTOOLS_IDXSTATS.out.versions)
 
     emit:

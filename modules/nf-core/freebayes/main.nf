@@ -8,10 +8,8 @@ process FREEBAYES {
         'quay.io/biocontainers/freebayes:1.3.5--py38ha193a2f_3' }"
 
     input:
-    tuple val(meta), path(bam), path(bai), path(target_bed)
+    tuple val(meta), path(bam), path(bai), path(target_bed), path(fasta), path(fai)
     val targets_file
-    path fasta
-    path fasta_fai
     path samples
     path populations
     path cnv
@@ -39,8 +37,10 @@ process FREEBAYES {
         $populations_file \\
         $cnv_file \\
         $args \\
-        $bam | \\
-    bgzip -c > ${prefix}${interval}.vcf.gz
+        $bam > ${prefix}${interval}.vcf
+    
+    bgzip ${prefix}${interval}.vcf
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         freebayes: \$(echo \$(freebayes --version 2>&1) | sed 's/version:\s*v//g' )

@@ -1,11 +1,11 @@
 process BCFTOOLS_CONCAT {
-    tag "$meta.id"
-    label 'process_medium'
+    tag "${meta.id}_${meta.ref_id}" 
+    label 'process_high'
 
-    conda "bioconda::bcftools=1.16"
+    conda "bioconda::bcftools=1.17"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bcftools:1.16--hfe4b78e_1':
-        'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
+        'https://depot.galaxyproject.org/singularity/bcftools:1.17--haef29d1_0':
+        'biocontainers/bcftools:1.17--haef29d1_0' }"
 
     input:
     tuple val(meta), path(vcfs), path(tbi)
@@ -19,7 +19,7 @@ process BCFTOOLS_CONCAT {
 
     script:
     def args = task.ext.args   ?: ''
-    prefix   = task.ext.prefix ?: "${meta.id}"
+    prefix   = task.ext.prefix ?: "${meta.id}" + '_' + "${meta.ref_id}"
     """
     bcftools concat \\
         --output ${prefix}.vcf.gz \\

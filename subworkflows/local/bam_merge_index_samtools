@@ -10,18 +10,14 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
     main:
     ch_versions = Channel.empty()
 
-    ch_bam_to_merge = bam.map {
-        meta, bed -> 
-            [['id':meta.id.split(/\d+/)[0]], bed ]
-        }
-        .groupTuple()
+    ch_bam_to_merge = bam.map { WorkflowRadseq.addRefIdToChannels(params, it) }.groupTuple()
 
     MERGE_BAM(ch_bam_to_merge, fasta, fai)
     
     INDEX_MERGE_BAM(MERGE_BAM.out.bam)
 
     bam_bai = MERGE_BAM.out.bam
-        .join(INDEX_MERGE_BAM.out.bai)
+        .join(INDEX_MERGE_BAM.out.bai, by: [0])
 
     // Gather versions of all tools used
     ch_versions = ch_versions.mix(INDEX_MERGE_BAM.out.versions.first())

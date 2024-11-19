@@ -1,0 +1,13 @@
+Changes in module 'nf-core/samtools/faidx'
+--- modules/nf-core/samtools/faidx/main.nf
++++ modules/nf-core/samtools/faidx/main.nf
+@@ -9,7 +9,6 @@
+ 
+     input:
+     tuple val(meta), path(fasta)
+-    tuple val(meta2), path(fai)
+ 
+     output:
+     tuple val(meta), path ("*.{fa,fasta}") , emit: fa , optional: true
+
+************************************************************

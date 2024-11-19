@@ -1,3 +1,2 @@
-"NFCORE_RADSEQ:RADSEQ:DENOVO:DENOVO_FASTP":
-    fastp: /home/eaglesnatcher123/nextflow_pipelines/nf-core-radseq/work/ef/a42c17162d3c0e879d6ac44e17ecd3/.command.sh: line 23: fastp: command not found
-    BusyBox: 1.30.1
+"NFCORE_RADSEQ:RADSEQ:ALIGN:FASTQ_CREATE_UMI_CONSENSUS_FGBIO:GROUPREADSBYUMI":
+    fgbio: /home/eaglesnatcher123/nextflow_pipelines/radseq/work/47/c5cd72fedc54a7b7068606caee80f0/.command.sh: line 11: fgbio: command not found

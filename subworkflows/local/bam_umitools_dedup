@@ -1,0 +1,32 @@
+include { UMITOOLS_DEDUP } from '../../modules/nf-core/umitools/dedup/main.nf'
+include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main.nf'
+
+workflow BAM_UMITOOLS_DEDUP {
+
+    take:
+    bam
+
+    main:
+
+        ch_versions = Channel.empty()
+
+        // INDEX and append to channel   
+        bai = SAMTOOLS_INDEX (bam).bai
+            
+        bam2umitools = bai.join(bam)
+            .map{ meta, bai, bam -> 
+                [meta, bam, bai]
+                }
+        ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+
+        // DEDUP
+        consensusbam = UMITOOLS_DEDUP (bam2umitools, true).bam
+        ch_versions = ch_versions.mix(UMITOOLS_DEDUP.out.versions)
+
+    emit:
+    consensusbam
+    bai
+
+    versions = ch_versions
+
+}

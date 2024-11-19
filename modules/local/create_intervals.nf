@@ -12,7 +12,7 @@ process CREATE_INTERVALS {
     val (lengths)
 
     output:
-    tuple val(meta), path('mapped.*.bed'), emit: intervals
+    tuple val(meta), path('*.bed'), emit: intervals
     path  "versions.yml"                 , emit: versions
 
     when:
@@ -33,11 +33,11 @@ process CREATE_INTERVALS {
         
         awk -v x=\$DP '\$4 < x' ${prefix}_cov.split.stats | sort -k1,1 -k2,2 | awk -v cutoff=\$CC -v tt=\$TT 'BEGIN{i=1}
             {len=\$3-\$2;lc=len*\$4;cov = cov + lc
-            if (NR == 1 && lc > tt) {x="mapped."i".bed";print \$1"\\t"\$2"\\t"\$3 > x; i=i+1; e=1}
-            else if ( cov < cutoff && lc < tt) {x="mapped."i".bed";print \$1"\\t"\$2"\\t"\$3 > x; e=0}
-            else if (lc > tt && e > 0 ) {x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1; e=1}
-            else if (lc > tt && e < 1 ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1;e=1}
-            else if (cov > cutoff && lc < tt ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=lc;e=0}
+            if (NR == 1 && lc > tt) {x=""i".bed";print \$1"\\t"\$2"\\t"\$3 > x; i=i+1; e=1}
+            else if ( cov < cutoff && lc < tt) {x=""i".bed";print \$1"\\t"\$2"\\t"\$3 > x; e=0}
+            else if (lc > tt && e > 0 ) {x=""i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1; e=1}
+            else if (lc > tt && e < 1 ) {i=i+1; x=""i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1;e=1}
+            else if (cov > cutoff && lc < tt ) {i=i+1; x=""i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=lc;e=0}
             }'
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -58,11 +58,11 @@ process CREATE_INTERVALS {
         
         awk -v x=\$DP '\$4 < x' ${prefix}_cov.split.stats | sort -k1,1 -k2,2 | awk -v cutoff=\$CC -v tt=\$TT 'BEGIN{i=1}
             {len=\$3-\$2;lc=len*\$4;cov = cov + lc
-            if (NR == 1 && lc > tt) {x="mapped."i".bed";print \$1"\\t"\$2"\\t"\$3 > x; i=i+1; e=1}
-            else if ( cov < cutoff && lc < tt) {x="mapped."i".bed";print \$1"\\t"\$2"\\t"\$3 > x; e=0}
-            else if (lc > tt && e > 0 ) {x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1; e=1}
-            else if (lc > tt && e < 1 ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1;e=1}
-            else if (cov > cutoff && lc < tt ) {i=i+1; x="mapped."i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=lc;e=0}
+            if (NR == 1 && lc > tt) {x=""i".bed";print \$1"\\t"\$2"\\t"\$3 > x; i=i+1; e=1}
+            else if ( cov < cutoff && lc < tt) {x=""i".bed";print \$1"\\t"\$2"\\t"\$3 > x; e=0}
+            else if (lc > tt && e > 0 ) {x=""i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1; e=1}
+            else if (lc > tt && e < 1 ) {i=i+1; x=""i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=0;i=i+1;e=1}
+            else if (cov > cutoff && lc < tt ) {i=i+1; x=""i".bed"; print \$1"\\t"\$2"\\t"\$3 > x; cov=lc;e=0}
             }'
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

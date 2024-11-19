@@ -1,16 +1,17 @@
 Changes in module 'nf-core/bcftools/sort'
 --- modules/nf-core/bcftools/sort/main.nf
 +++ modules/nf-core/bcftools/sort/main.nf
-@@ -20,10 +20,11 @@
-     script:
-     def args = task.ext.args ?: ''
-     def prefix = task.ext.prefix ?: "${meta.id}"
-+    def interval = meta.interval  ? '_' + meta.interval : ''
+@@ -25,11 +25,11 @@
+                     args.contains("--output-type z") || args.contains("-Oz") ? "vcf.gz" :
+                     args.contains("--output-type v") || args.contains("-Ov") ? "vcf" :
+                     "vcf"
+-
++    def interval = meta.interval ?: ''
      """
      bcftools \\
          sort \\
--        --output ${prefix}.vcf.gz \\
-+        --output ${prefix}${interval}.vcf.gz \\
+-        --output ${prefix}.${extension} \\
++        --output ${prefix}_${interval}_sort.${extension} \\
          $args \\
          $vcf
  

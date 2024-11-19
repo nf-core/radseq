@@ -5,11 +5,10 @@ process BEDTOOLS_INTERSECT {
     conda "bioconda::bedtools=2.30.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bedtools:2.30.0--hc088bd4_0' :
-        'quay.io/biocontainers/bedtools:2.30.0--hc088bd4_0' }"
+        'biocontainers/bedtools:2.30.0--hc088bd4_0' }"
 
     input:
     tuple val(meta), path(intervals1), path(intervals2)
-    val extension
 
     output:
     tuple val(meta), path("*.${extension}"), emit: intersect
@@ -20,7 +19,9 @@ process BEDTOOLS_INTERSECT {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}_intersect"
+    //Extension of the output file. It is set by the user via "ext.suffix" in the config. Corresponds to the file format which depends on arguments (e. g., ".bed", ".bam", ".txt", etc.).
+    extension = task.ext.suffix ?: "${intervals1.extension}"
     if ("$intervals1" == "${prefix}.${extension}" ||
         "$intervals2" == "${prefix}.${extension}")
         error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
@@ -40,6 +41,7 @@ process BEDTOOLS_INTERSECT {
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    extension = task.ext.suffix ?: "bed"
     if ("$intervals1" == "${prefix}.${extension}" ||
         "$intervals2" == "${prefix}.${extension}")
         error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"

@@ -7,6 +7,23 @@ workflow PROCESS_RAD {
     main:
     ch_versions = Channel.empty()
 
+    /*
+    bam2umi = reads.branch { meta, reads -> 
+        umi: meta.umi_barcodes == true
+        no_umi: meta.umi_barcodes == false
+    }
+
+    dedup_fasta = clone_filters ( bam2umi.umi )
+
+    ch_fasta = 
+    */
+    
+    ch_fastp = FASTP (reads, [[],[]], true, false, false).reads // [[meta],[reads]], save_trimmed_failed, save_merged
+    ch_versions = ch_versions.mix(FASTP.out.versions)
+
+    // checks filtering results and outputs warning if below params.min_reads_after_fastp
+    FASTP.out.json.map { WorkflowRadseq.getFastpReadsAfterFiltering(params,log,it) }
+    
     // get the first read from fastq files to calculate read length from
     reads
         .map {
@@ -17,15 +34,12 @@ workflow PROCESS_RAD {
                 return [meta.id,reads[1]]
             }
         }
-        .splitFastq(record:true,limit:1)
+        .splitFastq(record:true,limit:100)
         .map { meta, splitfastq -> 
             return [splitfastq.readString]
         }
         .set {read_lengths}
     
-    ch_fastp = FASTP (reads, [[],[]], true, false, false).reads // [[meta],[reads]], save_trimmed_failed, save_merged
-    ch_versions = ch_versions.mix(FASTP.out.versions)
-
     emit:
     trimmed_reads = ch_fastp
     read_lengths

@@ -15,9 +15,9 @@ process COMBINE_UNIQUE_READS {
     each acrossIndv_MinDepth // number of unique individuals w/ reads
 
     output:
-    tuple val (meta), path ('*_uniq.full.fasta'), emit: uniq_reads
-    tuple val (meta), path ('totaluniqseq')     , emit: totaluniqseq
-    path 'versions.yml'                         , emit: versions
+    tuple val (meta), path ('*_uniq_full.fasta')      , emit: uniq_reads
+    tuple val (meta), path ('*_totaluniqseq.txt')     , emit: totaluniqseq
+    path 'versions.yml'                               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -49,8 +49,8 @@ process COMBINE_UNIQUE_READS {
         awk -v x=${acrossIndv_MinDepth} '\$1 >= x' > uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs
         
         sort -k1 -r -n -S 2G uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs | \\
-        cut -f2 > totaluniqseq
-        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > ${prefix}_uniq.full.fasta
+        cut -f2 > ${withinIndv_MinDepth}_${acrossIndv_MinDepth}_totaluniqseq.txt
+        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' ${withinIndv_MinDepth}_${acrossIndv_MinDepth}_totaluniqseq.txt > ${prefix}_${withinIndv_MinDepth}_${acrossIndv_MinDepth}_uniq_full.fasta
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
@@ -66,9 +66,9 @@ process COMBINE_UNIQUE_READS {
         
         # order the sequences for reproducibility 
         sort -k1 -r -n -S 2G uniq.k.${withinIndv_MinDepth}.c.${acrossIndv_MinDepth}.seqs | \\
-        cut -f2 > totaluniqseq 
+        cut -f2 > ${withinIndv_MinDepth}_${acrossIndv_MinDepth}_totaluniqseq.txt
         
-        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' totaluniqseq > ${prefix}_uniq.full.fasta
+        awk '{c= c + 1; print ">dDocent_Contig_" c "\\n" \$1}' ${withinIndv_MinDepth}_${acrossIndv_MinDepth}_totaluniqseq.txt > ${prefix}_${withinIndv_MinDepth}_${acrossIndv_MinDepth}_uniq_full.fasta
         
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

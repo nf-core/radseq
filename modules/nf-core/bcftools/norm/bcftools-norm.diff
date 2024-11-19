@@ -1,0 +1,14 @@
+Changes in module 'nf-core/bcftools/norm'
+--- modules/nf-core/bcftools/norm/main.nf
++++ modules/nf-core/bcftools/norm/main.nf
+@@ -20,7 +20,7 @@
+ 
+     script:
+     def args = task.ext.args ?: '--output-type z'
+-    def prefix = task.ext.prefix ?: "${meta.id}"
++    def prefix = task.ext.prefix ?: "${meta.id}_norm"
+     def extension = args.contains("--output-type b") || args.contains("-Ob") ? "bcf.gz" :
+                     args.contains("--output-type u") || args.contains("-Ou") ? "bcf" :
+                     args.contains("--output-type z") || args.contains("-Oz") ? "vcf.gz" :
+
+************************************************************

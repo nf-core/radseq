@@ -8,17 +8,15 @@ include { BCFTOOLS_STATS                  } from '../../modules/nf-core/bcftools
 workflow BAM_VARIANT_CALLING_FREEBAYES {
 
     take:
-    bam_bai_bed // [[meta], bam, bai, bed]
+    bam_bai_bed_fasta_fai // [[meta], bam, bai, bed]
     intervals // true or false
-    fasta // reference [fasta]
-    fai // reference index [faidx]
 
     main:
     ch_versions = Channel.empty()
     
     popmap = params.popmap ? Channel.fromPath(params.popmap).first() : []
 
-    FREEBAYES (bam_bai_bed, intervals, fasta.first(), fai.first(), [], popmap, [])
+    FREEBAYES (bam_bai_bed_fasta_fai, intervals, [], popmap, [])
     ch_versions = ch_versions.mix(FREEBAYES.out.versions)
 
     ch_vcfsort = BCFTOOLS_SORT (FREEBAYES.out.vcf).vcf
@@ -26,13 +24,21 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
 
     ch_tbi = TABIX_TABIX1 (BCFTOOLS_SORT.out.vcf).tbi
     ch_versions = ch_versions.mix(TABIX_TABIX1.out.versions)
+
+    ch_vcfsort_tbi = ch_vcfsort
+        .join (ch_tbi)
+        .map { meta, vcf, tbi -> 
+            tuple( [id:meta.id, single_end:meta.single_end, ref_id:meta.ref_id], vcf, tbi  )
+        }.groupTuple(by:0)
     
-    BCFTOOLS_CONCAT (ch_vcfsort.join (ch_tbi).map{meta,vcf,tbi->[[id:meta.id],vcf,tbi]}.groupTuple(by:0))
+
+    BCFTOOLS_CONCAT (ch_vcfsort_tbi)
     ch_versions = ch_versions.mix(BCFTOOLS_CONCAT.out.versions)
 
     ch_final_tbi = TABIX_TABIX2 (BCFTOOLS_CONCAT.out.vcf).tbi
 
-    BCFTOOLS_STATS (BCFTOOLS_CONCAT.out.vcf.join(ch_final_tbi), [], [], [])
+    BCFTOOLS_STATS (BCFTOOLS_CONCAT.out.vcf.join(ch_final_tbi), [], [], [])    
+    ch_versions = ch_versions.mix(BCFTOOLS_STATS.out.versions)
 
     emit:
     vcf      = BCFTOOLS_CONCAT.out.vcf
