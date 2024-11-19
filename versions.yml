@@ -1,2 +1,0 @@
-"NFCORE_RADSEQ:RADSEQ:ALIGN:FASTQ_CREATE_UMI_CONSENSUS_FGBIO:GROUPREADSBYUMI":
-    fgbio: /home/eaglesnatcher123/nextflow_pipelines/radseq/work/47/c5cd72fedc54a7b7068606caee80f0/.command.sh: line 11: fgbio: command not found
