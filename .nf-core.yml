@@ -1,2 +1,8 @@
 repository_type: pipeline
 org_path: ./modules
+lint:
+  files_exist:
+    - .github/workflows/linting_comment.yml
+  files_unchanged:
+    - .github/workflows/branch.yml
+    - .github/workflows/linting.yml
